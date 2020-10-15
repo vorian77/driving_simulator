@@ -1,22 +1,20 @@
 # Driving Simulator
 
-This driving simulator features a virtual autonomous vehicle that navigates a virtual map from a starting to a destination location. The vehicle interacts with common road artifacts using standard driving conventions. The simulator allows the programmer configure the virtual maps, which are made up of roads and road artifacts (stop signs, traffic lights, pedestrians, and other vehicles).
+This driving simulator features a an autonomous vehicle that navigates a virtual map from a starting to a destination location. The vehicle interacts with common road artifacts using standard driving conventions. The simulator allows the programmer to configure the virtual maps, which include roads and road artifacts (stop signs, traffic lights, pedestrians, and other vehicles).
 
 I'm a long-time programmer who is transitioning from developing office applications to autonomous vehicle engineering. 
 
 I was inspired to work on autonomous vehicles after seeing a documentary on the [DARPA 2005 Grand Challenge](https://www.youtube.com/watch?v=vCRrXQRvC_I), which was the first long distance competition for driverless cars and helped jump start the field of autonomous vehicle engineering. 
 
-I'm currently enrolled in the [Udacity.com Autonomous Vehicle Engineering Nano Degree program](https://www.udacity.com/school-of-autonomous-systems). It's a great program with comprehensive instruction and lots of projects. After completing the first few courses in the program I thought it would be fun to build a scale-model autonomous vehicle that could potentially complete Grand Challenge like courses that I'd build in my home and backyard. 
+I'm currently enrolled in the [Udacity.com Autonomous Vehicle Engineering Nano Degree program](https://www.udacity.com/school-of-autonomous-systems). It's a great program with comprehensive instruction and lots of projects. After completing the first few courses in the program I thought it would be fun to build a scale-model autonomous vehicle that could potentially complete Grand Challenge like courses that I plan to build in my home and backyard. 
 
-After learning that Google/Waymo has a software simulator that allows engineers to test their driving algorithms before running them on public roads, I decided to start with this software simulator. 
-
-This project has allowed me to explore key autonomous vehicle software issues such as, 
+I learned that Google/Waymo has a software simulator that allows engineers to test their driving algorithms before running them on public roads. I decided to begin my self-driving car project with a software simulator that would allow me to explore autonomous vehicle architecture issues such as, 
 * vehicle control,
 * route planning,
 * vehicle interaction with road artifacts, such as street signs, pedestrians, and other vehicles, and 
 * designing an extensible administrative system that allows the various (pseudo) vehicle control systems and sensors to efficiently operate together. 
 
-After completing the next phase of my coursework, I plan to build the actual scale-model car. Although I'll write the software for the model in C++ (rather than Python), I plan to base the software for the model on the architecture and algorithms I worked out in this project. 
+After completing the next phase of my coursework, I plan to build the actual scale-model car. Although I'll write the software for the model in C++ (rather than Python), I plan to base the model's software on the architecture and algorithms I worked out in this project. 
 
 ## Table of Contents
 
