@@ -210,7 +210,6 @@ class ClassifierSimulator(Classifier):
         return None
 
     def extract_data(self, status, artifact):
-        # todo - remove unused data
         feature = {'artifact': artifact, 'id': self.get_artifact_id(artifact)}
 
         car = status['car']
