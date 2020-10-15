@@ -354,7 +354,3 @@ class RoadIntersectionTurn(Road):
         ## draw()
         draw_border(self.road_prev.direction, ('top', 'bottom', 'left', 'right'))  # opposite to previous rect.py
         draw_border(self.direction, ('bottom', 'top', 'right', 'left'))  # opposite to next_road
-
-        # todo - TEMP draw lanes
-        # self.pygame.draw.rect(self.screen, self.COLOR_TEAL, self.lanes[0])
-        # self.pygame.draw.rect(self.screen, self.COLOR_PURPLE, self.lanes[1])
