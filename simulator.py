@@ -37,9 +37,6 @@ def main():
         # Management System
         vms = vms_lib.VehicleManagementSystem(pygame, screen, map)
 
-        # TODO - test
-        #test = test_lib.test(pygame, screen)
-
         # game loop
         driving = True
         while driving:
