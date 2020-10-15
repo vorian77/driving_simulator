@@ -229,12 +229,6 @@ class Lane(rect_lib.RectDirection):
             return v1 > v2
 
         ## draw()
-        # TODO - temp color rect
-        # if self.lane_id == 0:
-        #     self.road_current.pygame.draw.rect(self.road_current.screen, self.road_current.COLOR_TEAL, self)
-        # if self.lane_id == 1:
-        #     self.road_current.pygame.draw.rect(self.road_current.screen, self.road_current.COLOR_MAROON, self)
-
         left = self.gnav('left')
         top = self.gnav('top')
         bottom = self.gnav('bottom')
