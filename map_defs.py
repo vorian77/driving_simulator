@@ -6,23 +6,34 @@ L = "l"
 C = "c"
 
 def load():
-    # add_map(1, load_map(map0))
     add_map(2, load_map(map0))
-    # add_map(2, load_map(map1))
+    #add_map(1, load_map(map1))
     #add_map(2, load_map(map2))
+    #add_map(2, load_map(map3))
     return maps
 
 def map0():
+    #add_road(3, .75, 96)
+    add_road(3, 2, 96)
+    add_artifact("sign_speed_45", 2, 2, L)
+    #add_artifact("sign_stop", 1, 1, R)
+    #add_road(3, .75, 96)
+    #add_artifact("destination", 0, 2, C)
+
+def map1():
     add_road(3, .75, 96)
+    add_artifact("sign_speed_45", 1, 1, L)
     add_artifact("sign_traffic_light", 0, 2, C)
     add_road(0, .75, 96)
+    add_artifact("sign_speed_45", 1, 1, L)
     add_artifact("pedestrian", 1, 0, R)
     add_artifact("vehicle", 2, 2, 0)
     add_artifact("sign_stop", 0, 0, R)
     add_road(3, .75, 96)
+    add_artifact("sign_speed_45", 1, 1, L)
     add_artifact("destination", 0, 2, C)
 
-def map1():
+def map2():
     add_road(3, .25, 96)
     add_artifact("pedestrian", 1, 0, R)
     add_artifact("sign_stop", 0, 0, R)
@@ -32,7 +43,7 @@ def map1():
     add_artifact("vehicle", 2, 2, 0)
     add_artifact("destination", 0, 2, C)
 
-def map2():
+def map3():
     add_road(0, 0.25, 96)
     add_artifact("sign_traffic_light", 0, 2, C)
     add_road(2, .4, 96)
@@ -62,7 +73,7 @@ def map2():
     add_artifact("sign_stop", 0, 0, R)
     add_road(1, 1.9, 96)
     add_artifact("vehicle", 2, 2, 1)
-    add_artifact("pedestrian", 1, 0, R)
+    add_artifact("pedestrian", 1, 0, L)
     add_artifact("sign_stop", 0, 0, R)
     add_road(2, .65, 96)
     add_artifact("vehicle", 2, 2, 0)

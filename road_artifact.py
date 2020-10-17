@@ -77,6 +77,13 @@ class ObjRoadArtifactStationaryDestination(ObjRoadArtifactStationary):
         super().__init__(pygame, screen, road, image_file, artifact_def)
 
 
+class ObjRoadArtifactStationarySignSpeed45(ObjRoadArtifactStationary):
+    def __init__(self, pygame, screen, road, artifact_def):
+        image_file = 'images/sign_speed_45.png'
+        super().__init__(pygame, screen, road, image_file, artifact_def)
+        self.speed = 45
+
+
 class ObjRoadArtifactStationarySignStop(ObjRoadArtifactStationary):
     def __init__(self, pygame, screen, road, artifact_def):
         image_file = 'images/sign_stop_24.png'
@@ -234,6 +241,7 @@ class ObjRoadArtifactMoveVehicle(ObjRoadArtifactMoveVertical):
 
 CLASSES = {
     "destination": ObjRoadArtifactStationaryDestination,
+    "sign_speed_45": ObjRoadArtifactStationarySignSpeed45,
     "sign_stop": ObjRoadArtifactStationarySignStop,
     "sign_traffic_light": ObjRoadArtifactStationarySignTrafficLight,
     "pedestrian": ObjRoadArtifactMovePedestrian,

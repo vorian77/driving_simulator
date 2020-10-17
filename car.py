@@ -105,6 +105,7 @@ class SensorSimulator(Sensor):
 
     def init_classifiers(self):
         self.add_classifier(ClassiferSimulatorStationaryDestination)
+        self.add_classifier(ClassiferSimulatorStationarySignSpeed45)
         self.add_classifier(ClassiferSimulatorStationarySignStop)
         self.add_classifier(ClassiferSimulatorStationarySignTrafficLight)
         self.add_classifier(ClassiferSimulatorMoveVehicle)
@@ -224,7 +225,7 @@ class ClassifierSimulator(Classifier):
             pos_artifact = road.gnav(location_road)
         pos_car = car.gnav('top')
 
-        feature['distance'] = abs(pos_artifact - pos_car)
+        feature['distance'] = (pos_artifact - pos_car) * road.graph_dir_length
         feature['heading'] = u.heading(car.center, artifact.center)
 
         # same_lane
@@ -278,6 +279,22 @@ class ClassiferSimulatorStationaryDestination(ClassiferSimulatorStationary):
             return car.make_instruction(None, 0)
         else:
             return 'arrived'
+
+
+class ClassiferSimulatorStationarySignSpeed45(ClassiferSimulatorStationary):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed45, 0, None)
+        self.speed = 45
+
+    def process_function(self, data):
+        car = data['status']['car']
+
+        if car.speed != self.speed:
+            car.draw_outline(f'Setting speed to: {self.speed}')
+            return car.make_instruction(None, self.speed)
+        else:
+            feature = data['feature']
+            self.process_complete(feature)
 
 
 class ClassiferSimulatorStationarySignStop(ClassiferSimulatorStationary):
