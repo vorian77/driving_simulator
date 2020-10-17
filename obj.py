@@ -184,6 +184,6 @@ class ObjImageMove(ObjImage):
         self.msg(f'{text}...')
 
     def draw_outline(self, text):
-        self.pygame.draw.rect(self.screen, self.COLOR_YELLOW, self, 1)
+        self.pygame.draw.rect(self.screen, self.COLOR_RED, self, 1)
         self.msg(f'{text}...')
 
