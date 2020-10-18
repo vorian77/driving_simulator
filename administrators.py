@@ -1,6 +1,7 @@
 import math
 import obj
 import road as road_lib
+import road_artifact as ra_lib
 import utilities as u
 
 class ObjAdmin(obj.Obj):
@@ -54,7 +55,7 @@ class RoutePlanner(ObjAdmin):
     def update(self):
         road = self.map.get_road_car()
         if road:
-            data = {'car': self.car, 'road': road, 'speed': road.speed}
+            data = {'car': self.car, 'road': road}
 
             if isinstance(road, road_lib.RoadStraight):
                 data = self.setup_drive_straight(data)
@@ -100,6 +101,7 @@ class RoutePlanner(ObjAdmin):
         road = data['road']
         car = data['car']
         car.set_direction(road.direction)
+        data['prev_speed'] = car.speed
         data['dir_val_function'] = road.dir_val_exceeds
         data['drive_guide'] = road.drive_guides[road.get_lane_obj(car).lane_id]
         return data
@@ -110,7 +112,6 @@ class RoutePlanner(ObjAdmin):
         f_dir_val = data['dir_val_function']
 
         if car.point_in_rect('midtop', road):
-            speed = data['speed']
             drive_guide = road.get_lane_obj(car).drive_guide
             road.draw_drive_guide(car, drive_guide, f_dir_val)
 
@@ -119,7 +120,7 @@ class RoutePlanner(ObjAdmin):
             if target_heading != road.get_angle_current():
                 car.draw_heading(target_heading)
 
-            return car.make_instruction(target_heading, speed)
+            return car.make_instruction(target_heading, None)
         else:
             return None
 
@@ -133,9 +134,7 @@ class RoutePlanner(ObjAdmin):
         end_of_turn = drive_guide[-1]
 
         if f_dir_val(end_of_turn, car_center):
-            # continue turn as long as car has not completed turn
-            speed = data['speed']
-
+            # continue turning until car has completed turn
             road.draw_drive_guide(car, drive_guide, f_dir_val)
             target_heading = self.get_car_heading(car, drive_guide, f_dir_val)
 
@@ -144,6 +143,7 @@ class RoutePlanner(ObjAdmin):
 
             car.draw_heading(target_heading)
 
-            return car.make_instruction(target_heading, speed)
+            return car.make_instruction(target_heading, road.speed)
         else:
+            car.speed = data['prev_speed']
             return None
