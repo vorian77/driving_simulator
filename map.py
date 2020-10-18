@@ -20,20 +20,19 @@ class ObjMap(obj.Obj):
         for rd, ad in zip(roads_def, artifacts_def):
             direction = rd[0]
             length = rd[1]
-            speed = rd[2]
 
             # intersection
             if len(roads) > 0:
                 road_prev = roads[-1]
                 pr_dir = road_prev.direction
                 if pr_dir == direction:
-                    roads.append(road_lib.RoadStraightIntersection(self.pygame, self.screen, road_prev, self.speed_intersection))
+                    roads.append(road_lib.RoadStraightIntersection(self.pygame, self.screen, road_prev))
                 else:
                     roads.append(road_lib.RoadIntersectionTurn(self.pygame, self.screen, road_prev, self.speed_intersection, direction, self.lane_cnt))
                 road_prev = roads[-1]
 
             # primary rect.py
-            roads.append(road_lib.RoadStraightPrimary(self.pygame, self.screen, road_prev, self.lane_cnt, length, speed, direction, ad))
+            roads.append(road_lib.RoadStraightPrimary(self.pygame, self.screen, road_prev, self.lane_cnt, length, direction, ad))
         return roads
 
     def init_car(self):

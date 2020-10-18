@@ -8,12 +8,11 @@ import utilities as u
 class Road(obj_lib.Obj, rect_lib.RectDirection):
     LANE_WIDTH = 5.0  # 3.7 meters + buffer for lines
 
-    def __init__(self, pygame, screen, rect_parms, direction_road, direction_lanes, road_prev, speed, lane_cnt, artifacts_def=None):
+    def __init__(self, pygame, screen, rect_parms, direction_road, direction_lanes, road_prev, lane_cnt, artifacts_def=None):
         obj_lib.Obj.__init__(self, pygame, screen)
         rect_lib.RectDirection.__init__(self, rect_parms, direction_road)
 
         self.road_prev = road_prev
-        self.speed = speed
         self.lane_cnt = lane_cnt
         self.lanes = self.init_lanes(direction_lanes, lane_cnt)
         self.artifacts = self.init_artifacts(artifacts_def)
@@ -83,9 +82,9 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
         return None
 
 class RoadStraight(Road):
-    def __init__(self, pygame, screen, road_prev, length, speed, direction_road, lane_cnt, artifacts_def=None):
+    def __init__(self, pygame, screen, road_prev, length, direction_road, lane_cnt, artifacts_def=None):
         rect_parms = self.init_parms(screen, road_prev, lane_cnt, length, direction_road)
-        super().__init__(pygame, screen, rect_parms, direction_road, direction_road, road_prev, speed, lane_cnt, artifacts_def)
+        super().__init__(pygame, screen, rect_parms, direction_road, direction_road, road_prev, lane_cnt, artifacts_def)
 
     def init_parms(self, screen, road_prev, lane_cnt, length, direction):
         rw = self.get_lane_width() * lane_cnt
@@ -140,8 +139,8 @@ class RoadStraight(Road):
 
 
 class RoadStraightPrimary(RoadStraight):
-    def __init__(self, pygame, screen, road_prev, lane_cnt, length, speed, direction_road, artifacts_def):
-        super().__init__(pygame, screen, road_prev, length, speed, direction_road, lane_cnt, artifacts_def)
+    def __init__(self, pygame, screen, road_prev, lane_cnt, length, direction_road, artifacts_def):
+        super().__init__(pygame, screen, road_prev, length, direction_road, lane_cnt, artifacts_def)
 
     def draw(self):
         super().draw()
@@ -156,11 +155,11 @@ class RoadStraightPrimary(RoadStraight):
 
 
 class RoadStraightIntersection(RoadStraight):
-    def __init__(self, pygame, screen, road_prev, speed):
+    def __init__(self, pygame, screen, road_prev):
         lane_cnt = road_prev.lane_cnt
         length = None
         direction = road_prev.direction
-        super().__init__(pygame, screen, road_prev, length, speed, direction, lane_cnt)
+        super().__init__(pygame, screen, road_prev, length, direction, lane_cnt)
 
 
 class Lane(rect_lib.RectDirection):
@@ -266,8 +265,9 @@ class Lane(rect_lib.RectDirection):
 
 class RoadIntersectionTurn(Road):
     def __init__(self, pygame, screen, road_prev, speed, direction_next_road, lane_cnt):
+        self.speed = speed
         rect_parms = self.get_rect_parms(road_prev)
-        super().__init__(pygame, screen, rect_parms, direction_next_road, road_prev.direction, road_prev, speed, lane_cnt)
+        super().__init__(pygame, screen, rect_parms, direction_next_road, road_prev.direction, road_prev, lane_cnt)
         self.drive_guides = self.set_drive_guides()
 
     def get_rect_parms(self, road_prev):
