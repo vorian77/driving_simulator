@@ -9,6 +9,7 @@ class ObjCar(obj_lib.ObjImageMove):
 
     def __init__(self, pygame, screen, image_file, intial_direction):
         super().__init__(pygame, screen, image_file, intial_direction)
+        self.speed_prev = None
         self.sensors = self.init_sensors()
 
     def init_sensors(self):
@@ -39,6 +40,9 @@ class ObjCar(obj_lib.ObjImageMove):
             if new_process:
                 return new_process
         return None
+
+    def restore_speed(self):
+        self.speed = self.speed_prev
 
     def reset(self):
         for sensor in self.sensors:
@@ -290,6 +294,7 @@ class ClassiferSimulatorStationarySignSpeed(ClassiferSimulatorStationary):
 
         if car.speed != self.speed:
             car.draw_outline(f'Setting speed to: {self.speed}')
+            car.speed_prev = self.speed  # allow temporary speed changes to be reset
             return car.make_instruction(None, self.speed)
         else:
             feature = data['feature']
@@ -317,8 +322,8 @@ class ClassiferSimulatorStationarySignStop(ClassiferSimulatorStationary):
             car.draw_outline('Waiting at stop sign')
             return car.make_instruction(None, 0)
         else:
-            feature = data['feature']
-            self.process_complete(feature)
+            car.restore_speed()
+            self.process_complete(data['feature'])
 
 
 class ClassiferSimulatorStationarySignTrafficLight(ClassiferSimulatorStationary):
@@ -333,6 +338,7 @@ class ClassiferSimulatorStationarySignTrafficLight(ClassiferSimulatorStationary)
             car.draw_outline('Waiting at red traffic light')
             return car.make_instruction(None, 0)
         else:
+            car.restore_speed()
             self.process_complete(feature)
 
 
