@@ -8,7 +8,7 @@ class ObjMap(obj.Obj):
         super().__init__(pygame, screen)
         self.car = car
         self.lane_cnt = map_parms[0]
-        self.speed_intersection = 70  # km per hour
+        self.speed_intersection = 20  # km per hour
         self.roads = self.init_roads(map_parms[1])
         self.init_car()
 
