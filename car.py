@@ -108,7 +108,11 @@ class SensorSimulator(Sensor):
 
     def init_classifiers(self):
         self.add_classifier(ClassiferSimulatorStationaryDestination)
+        self.add_classifier(ClassiferSimulatorStationarySignSpeed15)
+        self.add_classifier(ClassiferSimulatorStationarySignSpeed25)
         self.add_classifier(ClassiferSimulatorStationarySignSpeed45)
+        self.add_classifier(ClassiferSimulatorStationarySignSpeed55)
+        self.add_classifier(ClassiferSimulatorStationarySignSpeed65)
         self.add_classifier(ClassiferSimulatorStationarySignStop)
         self.add_classifier(ClassiferSimulatorStationarySignTrafficLight)
         self.add_classifier(ClassiferSimulatorMoveVehicle)
@@ -300,9 +304,29 @@ class ClassiferSimulatorStationarySignSpeed(ClassiferSimulatorStationary):
             feature = data['feature']
             self.process_complete(feature)
 
+class ClassiferSimulatorStationarySignSpeed15(ClassiferSimulatorStationarySignSpeed):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed15, 0, None, 15)
+
+
+class ClassiferSimulatorStationarySignSpeed25(ClassiferSimulatorStationarySignSpeed):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed25, 0, None, 25)
+
+
 class ClassiferSimulatorStationarySignSpeed45(ClassiferSimulatorStationarySignSpeed):
     def __init__(self, pygame, screen):
         super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed45, 0, None, 45)
+
+
+class ClassiferSimulatorStationarySignSpeed55(ClassiferSimulatorStationarySignSpeed):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed55, 0, None, 55)
+
+
+class ClassiferSimulatorStationarySignSpeed65(ClassiferSimulatorStationarySignSpeed):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed65, 0, None, 65)
 
 
 class ClassiferSimulatorStationarySignStop(ClassiferSimulatorStationary):

@@ -83,10 +83,34 @@ class ObjRoadArtifactStationarySignSpeed(ObjRoadArtifactStationary):
         self.speed = speed
 
 
+class ObjRoadArtifactStationarySignSpeed15(ObjRoadArtifactStationarySignSpeed):
+    def __init__(self, pygame, screen, road, artifact_def):
+        image_file = 'images/sign_speed_15.png'
+        super().__init__(pygame, screen, road, artifact_def, image_file, 15)
+
+
+class ObjRoadArtifactStationarySignSpeed25(ObjRoadArtifactStationarySignSpeed):
+    def __init__(self, pygame, screen, road, artifact_def):
+        image_file = 'images/sign_speed_25.png'
+        super().__init__(pygame, screen, road, artifact_def, image_file, 25)
+
+
 class ObjRoadArtifactStationarySignSpeed45(ObjRoadArtifactStationarySignSpeed):
     def __init__(self, pygame, screen, road, artifact_def):
         image_file = 'images/sign_speed_45.png'
         super().__init__(pygame, screen, road, artifact_def, image_file, 45)
+
+
+class ObjRoadArtifactStationarySignSpeed55(ObjRoadArtifactStationarySignSpeed):
+    def __init__(self, pygame, screen, road, artifact_def):
+        image_file = 'images/sign_speed_55.png'
+        super().__init__(pygame, screen, road, artifact_def, image_file, 55)
+
+
+class ObjRoadArtifactStationarySignSpeed65(ObjRoadArtifactStationarySignSpeed):
+    def __init__(self, pygame, screen, road, artifact_def):
+        image_file = 'images/sign_speed_65.png'
+        super().__init__(pygame, screen, road, artifact_def, image_file, 65)
 
 
 class ObjRoadArtifactStationarySignStop(ObjRoadArtifactStationary):
@@ -246,7 +270,11 @@ class ObjRoadArtifactMoveVehicle(ObjRoadArtifactMoveVertical):
 
 CLASSES = {
     "destination": ObjRoadArtifactStationaryDestination,
+    "sign_speed_15": ObjRoadArtifactStationarySignSpeed15,
+    "sign_speed_25": ObjRoadArtifactStationarySignSpeed25,
     "sign_speed_45": ObjRoadArtifactStationarySignSpeed45,
+    "sign_speed_55": ObjRoadArtifactStationarySignSpeed55,
+    "sign_speed_65": ObjRoadArtifactStationarySignSpeed65,
     "sign_stop": ObjRoadArtifactStationarySignStop,
     "sign_traffic_light": ObjRoadArtifactStationarySignTrafficLight,
     "pedestrian": ObjRoadArtifactMovePedestrian,
