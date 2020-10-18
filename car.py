@@ -458,7 +458,7 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
                     heading = u.heading(car_location, end_point)
                     car.draw_heading(heading)
                     self.msg(f'Changing lane to avoid vehicle...')
-                    return car.make_instruction(heading, road.speed)
+                    return car.make_instruction(heading, car.speed_prev)
                 else:
                     return self.status_set_inactive(data)
             else:
@@ -506,4 +506,5 @@ class ClassiferSimulatorMovePedestrian(ClassifierSimulatorMove):
             car.draw_collision_buffer('Waiting for pedestrian')
             return car.make_instruction(None, 0)
         else:
+            car.restore_speed()
             return super().status_set_inactive(data)
