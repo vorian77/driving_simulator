@@ -53,7 +53,7 @@ class RoutePlanner(ObjAdmin):
         self.drive_plan_color = (255, 0, 0)
 
     def update(self):
-        road = self.map.get_road_car()
+        road = self.map.get_road_obj(self.car)
         if road:
             data = {'car': self.car, 'road': road}
 
@@ -101,7 +101,6 @@ class RoutePlanner(ObjAdmin):
         road = data['road']
         car = data['car']
         car.set_direction(road.direction)
-        data['prev_speed'] = car.speed
         data['dir_val_function'] = road.dir_val_exceeds
         data['drive_guide'] = road.drive_guides[road.get_lane_obj(car).lane_id]
         return data
@@ -145,5 +144,5 @@ class RoutePlanner(ObjAdmin):
 
             return car.make_instruction(target_heading, road.speed)
         else:
-            car.speed = data['prev_speed']
+            car.restore_speed()
             return None

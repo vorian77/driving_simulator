@@ -56,8 +56,8 @@ class ObjMap(obj.Obj):
         else:
             return self.roads[0]
 
-    def get_road_car(self):
+    def get_road_obj(self, obj):
         for road in reversed(self.roads):
-            if self.car.in_rect(road):
+            if obj.in_rect(road):
                 return road
         return None

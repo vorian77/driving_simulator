@@ -55,8 +55,7 @@ class ObjCar(obj_lib.ObjImageMove):
 
     def get_status_location(self, status):
         location = {}
-        map = status['map']
-        road = map.get_road_car()
+        road = status['map'].get_road_obj(status['car'])
         location['road'] = road
         location['lane'] = road.get_lane_obj(self)
         return location
