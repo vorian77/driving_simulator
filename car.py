@@ -281,10 +281,10 @@ class ClassiferSimulatorStationaryDestination(ClassiferSimulatorStationary):
             return 'arrived'
 
 
-class ClassiferSimulatorStationarySignSpeed45(ClassiferSimulatorStationary):
-    def __init__(self, pygame, screen):
-        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed45, 0, None)
-        self.speed = 45
+class ClassiferSimulatorStationarySignSpeed(ClassiferSimulatorStationary):
+    def __init__(self, pygame, screen, artifact_class, activate_distance, activate_pos, speed):
+        self.speed = speed
+        super().__init__(pygame, screen, artifact_class, activate_distance, activate_pos)
 
     def process_function(self, data):
         car = data['status']['car']
@@ -295,6 +295,10 @@ class ClassiferSimulatorStationarySignSpeed45(ClassiferSimulatorStationary):
         else:
             feature = data['feature']
             self.process_complete(feature)
+
+class ClassiferSimulatorStationarySignSpeed45(ClassiferSimulatorStationarySignSpeed):
+    def __init__(self, pygame, screen):
+        super().__init__(pygame, screen, road_artifact.ObjRoadArtifactStationarySignSpeed45, 0, None, 45)
 
 
 class ClassiferSimulatorStationarySignStop(ClassiferSimulatorStationary):
