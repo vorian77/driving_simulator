@@ -11,7 +11,7 @@ def main():
     clock = pygame.time.Clock()
 
     # set screen location
-    x = 50
+    x = 10
     y = 150
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x, y)
 
