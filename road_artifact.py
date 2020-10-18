@@ -77,11 +77,16 @@ class ObjRoadArtifactStationaryDestination(ObjRoadArtifactStationary):
         super().__init__(pygame, screen, road, image_file, artifact_def)
 
 
-class ObjRoadArtifactStationarySignSpeed45(ObjRoadArtifactStationary):
+class ObjRoadArtifactStationarySignSpeed(ObjRoadArtifactStationary):
+    def __init__(self, pygame, screen, road, artifact_def, image_file, speed):
+        super().__init__(pygame, screen, road, image_file, artifact_def)
+        self.speed = speed
+
+
+class ObjRoadArtifactStationarySignSpeed45(ObjRoadArtifactStationarySignSpeed):
     def __init__(self, pygame, screen, road, artifact_def):
         image_file = 'images/sign_speed_45.png'
-        super().__init__(pygame, screen, road, image_file, artifact_def)
-        self.speed = 45
+        super().__init__(pygame, screen, road, artifact_def, image_file, 45)
 
 
 class ObjRoadArtifactStationarySignStop(ObjRoadArtifactStationary):
