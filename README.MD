@@ -48,10 +48,10 @@ The *load()* function specifies the maps that will be loaded when the simulator 
 
 ```
 def load():
-    add_map(1, load_map(map0))
-    add_map(2, load_map(map0))
-    add_map(2, load_map(map1))
-    add_map(2, load_map(map2))
+    add_map(1, 0, load_map(map0))
+    add_map(2, 0, load_map(map0))
+    add_map(2, 1, load_map(map1))
+    add_map(2, 0, load_map(map2))
     return maps
 ```
 
@@ -61,6 +61,7 @@ Adds a specific map to the list of maps that will be executed when the simulator
 
 Parameters:
 * lane_count (integer) - the number of lanes that will appear in the roads of the map.
+* car_start_lane (integer) - the lane where the car starts. The right most lane is lane 0.
 * map_parms (tuple(road_parms, road_artifact_parms)) - the road_parms and road_artifact_parms for maps are defined in *map#()* functions. The *load_map()* function is used to call particular *map#()* functions.
 
 ##### map#()
