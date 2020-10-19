@@ -8,8 +8,9 @@ class ObjMap(obj.Obj):
         super().__init__(pygame, screen)
         self.car = car
         self.lane_cnt = map_parms[0]
+        self.car_start_lane = map_parms[1]
         self.speed_intersection = 20  # km per hour
-        self.roads = self.init_roads(map_parms[1])
+        self.roads = self.init_roads(map_parms[2])
         self.init_car()
 
     def init_roads(self, map_parms):
@@ -39,7 +40,7 @@ class ObjMap(obj.Obj):
         # init car
         road = self.get_road_first()
         self.car.rotate(road.get_angle_current())
-        road.lanes[0].pos_obj('midbottom', self.car, 'midbottom')
+        road.lanes[self.car_start_lane].pos_obj('midbottom', self.car, 'midbottom')
 
     def update(self):
         for road in self.roads:
