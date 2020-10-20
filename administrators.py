@@ -132,7 +132,8 @@ class RoutePlanner(ObjAdmin):
         car_refn_location = 'midtop'
 
         if car.point_in_rect(car_refn_location, road):
-            road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            # todo - temp
+            #road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
             target_heading = self.get_car_heading_straight(car, car_refn_location, drive_guide, f_dir_val)
             if target_heading != road.get_angle_current():
                 car.draw_heading(target_heading)

@@ -69,11 +69,20 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             raise ValueError(f"Invalid border: {border}. Must be top, bottom, left, or right.")
         self.draw_line(color, p0, p1)
 
-    def draw_drive_guide(self, obj, obj_ref_location, drive_guide, f_dir_val):
-        obj_refn_point = obj.gnav(obj_ref_location)
-        for p in drive_guide:
-            if f_dir_val(p, obj_refn_point):
-                self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
+    # todo - temp
+    # def draw_drive_guide(self, obj, obj_ref_location, drive_guide, f_dir_val):
+    #     obj_refn_point = obj.gnav(obj_ref_location)
+    #     for p in drive_guide:
+    #         if f_dir_val(p, obj_refn_point):
+    #             self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
+
+    def draw_drive_guide(self, drive_guide, pfirst, plast, cfirst, clast):
+          # todo - temp
+        p0 = drive_guide[pfirst]
+        p1 = drive_guide[plast]
+        self.pygame.draw.circle(self.screen, cfirst, (p0[0], p0[1]), 1)
+        self.pygame.draw.circle(self.screen, clast, (p1[0], p1[1]), 1)
+
 
     def get_lane_obj(self, obj):
         for lane in self.lanes:

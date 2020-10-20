@@ -48,6 +48,14 @@ class ObjMap(obj.Obj):
     def draw(self):
         for road in self.roads:
             road.draw()
+            # todo - temp drive guides for demo
+            if isinstance(road, road_lib.RoadStraight):
+                for lane in road.lanes:
+                    guide = lane.drive_guide
+                    road.draw_drive_guide(guide, 0, -1, self.COLOR_BLACK, self.COLOR_BLACK)
+            else:
+                for guide in road.drive_guides:
+                    road.draw_drive_guide(guide, 0, -2, self.COLOR_GREEN, self.COLOR_GREEN)
 
     def get_road_first(self):
         if len(self.roads) == 0:
