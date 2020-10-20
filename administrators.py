@@ -1,7 +1,6 @@
 import math
 import obj
 import road as road_lib
-import road_artifact as ra_lib
 import utilities as u
 
 class ObjAdmin(obj.Obj):
@@ -65,29 +64,48 @@ class RoutePlanner(ObjAdmin):
                 return (data, self.process_drive_turn)
         return None
 
-    def get_closest_point(self, origin, drive_guide, f_dir_val):
+    def get_closest_point(self, refn_point, speed, drive_guide, f_dir_val):
         min_distance = math.inf
         min_point_idx = None
-        offset = 1
+        move_distance = u.pixels_per_update(speed)
         for idx, point in enumerate(drive_guide):
-            if origin != point:
-                if f_dir_val(point, origin):
-                    d_car_to_point = u.cartesian_distance(origin, point)
+            if f_dir_val(point, refn_point):
+                d_car_to_point = u.cartesian_distance(refn_point, point)
+                if d_car_to_point > move_distance:
                     if d_car_to_point < min_distance:
                         min_distance = d_car_to_point
                         min_point_idx = idx
-        if min_point_idx is None:
-            return None
-        if min_point_idx + offset < len(drive_guide):
-            min_point = drive_guide[min_point_idx + offset]
-        else:
-            min_point = drive_guide[min_point_idx]
-        return min_point
+        return drive_guide[min_point_idx] if min_point_idx else None
 
-    def get_car_heading(self, car, drive_guide, f_dir_val):
-        car_center = car.gnav('center')
-        close_pt = self.get_closest_point(car_center, drive_guide, f_dir_val)
-        heading = None if close_pt is None else u.heading(car_center, close_pt)
+    def get_car_heading_turn(self, car, car_refn_location, drive_guide, f_dir_val):
+        car_refn_point = car.gnav(car_refn_location)
+        closest_pt = self.get_closest_point(car_refn_point, car.speed, drive_guide, f_dir_val)
+        return car.heading if not closest_pt else u.heading(car_refn_point, closest_pt)
+
+    def get_car_heading_straight(self, car, car_refn_location, drive_guide, f_dir_val):
+        max_heading_change = 4  # degrees
+
+        car_refn_point = car.gnav(car_refn_location)
+        closest_pt = self.get_closest_point(car_refn_point, car.speed, drive_guide, f_dir_val)
+        if not closest_pt:
+            return car.heading
+
+        # normalize car heading
+        car_heading = car.heading if car.heading > 0 else (360 - abs(car.heading))
+        car_heading = car_heading % 360
+
+        heading_to_closest_pt = u.heading(car_refn_point, closest_pt)
+        if car_heading == heading_to_closest_pt:
+            heading = car_heading
+        else:
+            heading_change = abs(heading_to_closest_pt - car_heading)
+            if heading_change > max_heading_change:
+                heading_change = max_heading_change
+
+            if heading_to_closest_pt - car_heading > 0:
+                heading = car_heading + heading_change
+            else:
+                heading = car_heading - heading_change
         return heading
 
     def setup_drive_straight(self, data):
@@ -95,6 +113,7 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         car.set_direction(road.direction)
         data['dir_val_function'] = road.dir_val_exceeds
+        data['drive_guide'] = road.get_lane_obj(car).drive_guide
         return data
 
     def setup_drive_turn(self, data):
@@ -109,16 +128,14 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         road = data['road']
         f_dir_val = data['dir_val_function']
+        drive_guide = data['drive_guide']
+        car_refn_location = 'midtop'
 
-        if car.point_in_rect('midtop', road):
-            drive_guide = road.get_lane_obj(car).drive_guide
-            road.draw_drive_guide(car, drive_guide, f_dir_val)
-
-            target_heading = self.get_car_heading(car, drive_guide, f_dir_val)
-
+        if car.point_in_rect(car_refn_location, road):
+            road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            target_heading = self.get_car_heading_straight(car, car_refn_location, drive_guide, f_dir_val)
             if target_heading != road.get_angle_current():
                 car.draw_heading(target_heading)
-
             return car.make_instruction(target_heading, None)
         else:
             return None
@@ -129,19 +146,13 @@ class RoutePlanner(ObjAdmin):
         drive_guide = data['drive_guide']
         f_dir_val = data['dir_val_function']
 
-        car_center = car.gnav('center')
+        car_refn_location = 'center'
         end_of_turn = drive_guide[-1]
 
-        if f_dir_val(end_of_turn, car_center):
-            # continue turning until car has completed turn
-            road.draw_drive_guide(car, drive_guide, f_dir_val)
-            target_heading = self.get_car_heading(car, drive_guide, f_dir_val)
-
-            if target_heading is None:
-                target_heading = car.heading
-
+        if f_dir_val(end_of_turn, car.gnav(car_refn_location)):
+            road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            target_heading = self.get_car_heading_turn(car, car_refn_location, drive_guide, f_dir_val)
             car.draw_heading(target_heading)
-
             return car.make_instruction(target_heading, road.speed)
         else:
             car.restore_speed()
