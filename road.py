@@ -264,8 +264,7 @@ class Lane(rect_lib.RectDirection):
 
 
 class RoadIntersectionTurn(Road):
-    def __init__(self, pygame, screen, road_prev, speed, direction_next_road, lane_cnt):
-        self.speed = speed
+    def __init__(self, pygame, screen, road_prev, direction_next_road, lane_cnt):
         rect_parms = self.get_rect_parms(road_prev)
         super().__init__(pygame, screen, rect_parms, direction_next_road, road_prev.direction, road_prev, lane_cnt)
         self.drive_guides = self.set_drive_guides()

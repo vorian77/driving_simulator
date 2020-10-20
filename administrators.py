@@ -153,7 +153,6 @@ class RoutePlanner(ObjAdmin):
             road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
             target_heading = self.get_car_heading_turn(car, car_refn_location, drive_guide, f_dir_val)
             car.draw_heading(target_heading)
-            return car.make_instruction(target_heading, road.speed)
+            return car.make_instruction(target_heading, None)
         else:
-            car.restore_speed()
             return None

@@ -9,7 +9,6 @@ class ObjMap(obj.Obj):
         self.car = car
         self.lane_cnt = map_parms[0]
         self.car_start_lane = map_parms[1]
-        self.speed_intersection = 20  # km per hour
         self.roads = self.init_roads(map_parms[2])
         self.init_car()
 
@@ -29,7 +28,7 @@ class ObjMap(obj.Obj):
                 if pr_dir == direction:
                     roads.append(road_lib.RoadStraightIntersection(self.pygame, self.screen, road_prev))
                 else:
-                    roads.append(road_lib.RoadIntersectionTurn(self.pygame, self.screen, road_prev, self.speed_intersection, direction, self.lane_cnt))
+                    roads.append(road_lib.RoadIntersectionTurn(self.pygame, self.screen, road_prev, direction, self.lane_cnt))
                 road_prev = roads[-1]
 
             # primary rect.py
