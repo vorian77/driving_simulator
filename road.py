@@ -16,7 +16,6 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
         self.lane_cnt = lane_cnt
         self.lanes = self.init_lanes(direction_lanes, lane_cnt)
         self.artifacts = self.init_artifacts(artifacts_def)
-        self.drive_guides = self.init_drive_guide()
 
     def get_lane_width(self):
         return u.convert_car(self.LANE_WIDTH)
@@ -38,7 +37,7 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             artifacts.append(artifact_class(self.pygame, self.screen, self, artifact_def))
         return artifacts
 
-    def init_drive_guide(self):
+    def get_drive_guide(self, car):
         pass
 
     def update(self, car):
@@ -134,6 +133,8 @@ class RoadStraight(Road):
         else:
             return starting_point_initial(screen, road_width, road_length, direction)
 
+    def get_drive_guide(self, car):
+        return self.get_lane_obj(car).get_drive_guide()
 
 class RoadStraightPrimary(RoadStraight):
     def __init__(self, pygame, screen, road_prev, lane_cnt, length, direction_road, artifacts_def):
@@ -284,7 +285,7 @@ class RoadIntersectionTurn(Road):
         starting_point = modify_pt(road_prev, parms[0], parms[1], rw)
         return (starting_point[0], starting_point[1], rw, rw)
 
-    def get_drive_guide(self, lane_id):
+    def get_drive_guide(self, car):
         def get_intersection_parms(pr_dir, nr_dir):
             #central_point, radians_headings_value_offset, radians_start_idx, radians_end_idx
             parms = (
@@ -313,7 +314,7 @@ class RoadIntersectionTurn(Road):
             return points
 
         ## get_drive_guide()
-        lane = self.lanes[lane_id]
+        lane = self.lanes[self.get_lane_obj(car).lane_id]
 
         # prev_road parms
         pr_dir = self.road_prev.direction
