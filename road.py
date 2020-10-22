@@ -100,9 +100,6 @@ class RoadStraight(Road):
         return (starting_point[0], starting_point[1], size[0], size[1])
 
     def get_starting_point(self, screen, road_prev, road_width, road_length, direction):
-        # get the starting end for a rect.py in "initial_direction"
-        # originating from self.road_prev
-
         def starting_point_road_prev(road_prev, rw, rl, direction):
             parms = (
                 (road_prev.topleft, 0, -rl), (road_prev.bottomleft, 0, 0),
@@ -173,7 +170,6 @@ class Lane(rect_lib.RectDirection):
         self.road_current = road_current
         self.lane_cnt = lane_cnt
         self.lane_id = lane_id
-        self.drive_guide = self.init_drive_guide()
 
     def init_rect_parms(self, direction, road_current, lane_cnt, lane_id):
         lane_width = road_current.get_lane_width()
@@ -206,7 +202,7 @@ class Lane(rect_lib.RectDirection):
             height = lane_width
         return (left, top, width, height)
 
-    def init_drive_guide(self):
+    def get_drive_guide(self):
         points = []
 
         center = self.gnav('cw')
@@ -221,6 +217,7 @@ class Lane(rect_lib.RectDirection):
         return points
 
     def draw(self):
+        # draw lane markers
         def less_than(v1, v2):
             return v1 < v2
 
@@ -267,7 +264,6 @@ class RoadIntersectionTurn(Road):
     def __init__(self, pygame, screen, road_prev, direction_next_road, lane_cnt):
         rect_parms = self.get_rect_parms(road_prev)
         super().__init__(pygame, screen, rect_parms, direction_next_road, road_prev.direction, road_prev, lane_cnt)
-        self.drive_guides = self.set_drive_guides()
 
     def get_rect_parms(self, road_prev):
         def modify_pt(rect_road, point, length_axis_value_factor, length_axis_value):
@@ -288,62 +284,56 @@ class RoadIntersectionTurn(Road):
         starting_point = modify_pt(road_prev, parms[0], parms[1], rw)
         return (starting_point[0], starting_point[1], rw, rw)
 
-    def set_drive_guides(self):
-        def set_drive_guide_lane(lane_start_idx, lane_start):
-            def get_intersection_parms(pr_dir, nr_dir):
-                #central_point, radians_headings_value_offset, radians_start_idx, radians_end_idx
-                parms = (
-                        ((), (), ('topleft', 3, 1, 0), ('topright', 2, 0, 1)),
-                        ((), (), ('topright', 0, 0, 1), ('topleft', 1, 1, 0)),
-                        (('topright', 1, 0, 1), ('topleft', 2, 1, 0), (), ()),
-                        (('topleft', 0, 1, 0), ('topright', 3, 0, 1), (), ())
-                    )[pr_dir][nr_dir]
-                return parms
+    def get_drive_guide(self, lane_id):
+        def get_intersection_parms(pr_dir, nr_dir):
+            #central_point, radians_headings_value_offset, radians_start_idx, radians_end_idx
+            parms = (
+                    ((), (), ('topleft', 3, 1, 0), ('topright', 2, 0, 1)),
+                    ((), (), ('topright', 0, 0, 1), ('topleft', 1, 1, 0)),
+                    (('topright', 1, 0, 1), ('topleft', 2, 1, 0), (), ()),
+                    (('topleft', 0, 1, 0), ('topright', 3, 0, 1), (), ())
+                )[pr_dir][nr_dir]
+            return parms
 
-            def get_plot_point(hk, radius, theta):
-                x = hk[0] + round((radius * np.cos(theta)))
-                y = hk[1] + round((radius * np.sin(theta)))
-                return x, y
+        def get_plot_point(hk, radius, theta):
+            x = hk[0] + round((radius * np.cos(theta)))
+            y = hk[1] + round((radius * np.sin(theta)))
+            return x, y
 
-            def get_path_turn(center_point, radius, intersection_parms):
-                pi = math.pi
-                points = []
-                offset = (pi / 2) * intersection_parms[1]
-                radian_range = (0, pi / 2)
-                radian_start = radian_range[intersection_parms[2]] + offset
-                radian_end = radian_range[intersection_parms[3]] + offset
-                thetas = np.linspace(radian_start, radian_end, 18)
-                for t in thetas:
-                    points.append((get_plot_point(center_point, radius, t)))
-                return points
+        def get_arc_points(center_point, radius, intersection_parms):
+            pi = math.pi
+            points = []
+            offset = (pi / 2) * intersection_parms[1]
+            radian_range = (0, pi / 2)
+            radian_start = radian_range[intersection_parms[2]] + offset
+            radian_end = radian_range[intersection_parms[3]] + offset
+            thetas = np.linspace(radian_start, radian_end, 18)
+            for t in thetas:
+                points.append((get_plot_point(center_point, radius, t)))
+            return points
 
-            ## set_drive_guide_lane()
+        ## get_drive_guide()
+        lane = self.lanes[lane_id]
 
-            # prev_road parms
-            pr_dir = self.road_prev.direction
-            start_point = lane_start.gnav('midtop')
+        # prev_road parms
+        pr_dir = self.road_prev.direction
+        start_point = lane.gnav('midtop')
 
-            # next rect.py parms
-            nr_dir = self.direction
+        # next rect.py parms
+        nr_dir = self.direction
 
-            # get center end
-            intersection_parms = get_intersection_parms(pr_dir, nr_dir)
-            center_point = self.road_prev.gnav(intersection_parms[0])
+        # get center end
+        intersection_parms = get_intersection_parms(pr_dir, nr_dir)
+        center_point = self.road_prev.gnav(intersection_parms[0])
 
-            # radius
-            width_axis_idx = self.road_prev.axis_idx_width
-            hk_width_axis_val = center_point[width_axis_idx]
-            p_start_width_axis_val = start_point[width_axis_idx]
-            radius = abs(hk_width_axis_val - p_start_width_axis_val)
+        # radius
+        width_axis_idx = self.road_prev.axis_idx_width
+        hk_width_axis_val = center_point[width_axis_idx]
+        p_start_width_axis_val = start_point[width_axis_idx]
+        radius = abs(hk_width_axis_val - p_start_width_axis_val)
 
-            # path points
-            return get_path_turn(center_point, radius, intersection_parms)
-
-        ## set_drive_guides()
-        drive_guides = []
-        for lane_idx, lane in enumerate(self.lanes):
-            drive_guides.append(set_drive_guide_lane(lane_idx, lane))
-        return drive_guides
+        # path points
+        return get_arc_points(center_point, radius, intersection_parms)
 
     def draw(self):
         def draw_border(direction, border_map):
