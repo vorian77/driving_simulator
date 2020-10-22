@@ -113,7 +113,7 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         car.set_direction(road.direction)
         data['dir_val_function'] = road.dir_val_exceeds
-        data['drive_guide'] = road.get_drive_guide(car)
+        data['drive_guide'] = road.get_drive_guide(road.get_lane_obj(car).lane_id)
         return data
 
     def setup_drive_turn(self, data):
@@ -121,7 +121,7 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         car.set_direction(road.direction)
         data['dir_val_function'] = road.dir_val_exceeds
-        data['drive_guide'] = road.get_drive_guide(car)
+        data['drive_guide'] = road.get_drive_guide(road.get_lane_obj(car).lane_id)
         return data
 
     def process_drive_straight(self, data):
