@@ -48,6 +48,10 @@ class ObjMap(obj.Obj):
     def draw(self):
         for road in self.roads:
             road.draw()
+            drive_guide = road.get_drive_guide(0)
+            road.draw_drive_guide(drive_guide)
+            drive_guide = road.get_drive_guide(1)
+            road.draw_drive_guide(drive_guide)
 
     def get_road_first(self):
         if len(self.roads) == 0:

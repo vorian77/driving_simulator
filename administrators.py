@@ -132,7 +132,9 @@ class RoutePlanner(ObjAdmin):
         car_refn_location = 'midtop'
 
         if car.point_in_rect(car_refn_location, road):
-            road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            #road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            road.draw_drive_guide(drive_guide)
+
             target_heading = self.get_car_heading_straight(car, car_refn_location, drive_guide, f_dir_val)
             if target_heading != road.get_angle_current():
                 car.draw_heading(target_heading)
@@ -150,7 +152,8 @@ class RoutePlanner(ObjAdmin):
         end_of_turn = drive_guide[-1]
 
         if f_dir_val(end_of_turn, car.gnav(car_refn_location)):
-            road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
+            road.draw_drive_guide(drive_guide)
+            #road.draw_drive_guide(car, car_refn_location, drive_guide, f_dir_val)
             target_heading = self.get_car_heading_turn(car, car_refn_location, drive_guide, f_dir_val)
             car.draw_heading(target_heading)
             return car.make_instruction(target_heading, None)

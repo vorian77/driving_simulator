@@ -68,11 +68,19 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             raise ValueError(f"Invalid border: {border}. Must be top, bottom, left, or right.")
         self.draw_line(color, p0, p1)
 
-    def draw_drive_guide(self, obj, obj_ref_location, drive_guide, f_dir_val):
-        obj_refn_point = obj.gnav(obj_ref_location)
+    # def draw_drive_guide(self, obj, obj_ref_location, drive_guide, f_dir_val):
+    #     obj_refn_point = obj.gnav(obj_ref_location)
+    #     for p in drive_guide:
+    #         if f_dir_val(p, obj_refn_point):
+    #             self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
+
+    # todo - temp to exmplify drive guides
+    def draw_drive_guide(self, drive_guide):
+        #obj_refn_point = obj.gnav(obj_ref_location)
         for p in drive_guide:
-            if f_dir_val(p, obj_refn_point):
-                self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
+            self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
+        self.pygame.draw.circle(self.screen, self.COLOR_GREEN, (drive_guide[0][0], drive_guide[0][1]), 1)
+        self.pygame.draw.circle(self.screen, self.COLOR_BLACK, (drive_guide[-1][0], drive_guide[-1][1]), 1)
 
     def get_lane_obj(self, obj):
         for lane in self.lanes:
@@ -310,7 +318,7 @@ class RoadIntersectionTurn(Road):
             radian_start = radian_range[intersection_parms[2]] + offset
             radian_end = radian_range[intersection_parms[3]] + offset
             thetas = np.linspace(radian_start, radian_end, 18)
-            for t in thetas:
+            for t in thetas[:-1]:
                 points.append((get_plot_point(center_point, radius, t)))
             return points
 
