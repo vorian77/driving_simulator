@@ -95,17 +95,24 @@ class RoutePlanner(ObjAdmin):
         car_heading = car_heading % 360
 
         heading_to_closest_pt = u.heading(car_refn_point, closest_pt)
-        if car_heading == heading_to_closest_pt:
+        car_width_val = car.gnav('cw')
+        lane_width_val = closest_pt[car.axis_idx_width]
+
+        if car_heading == heading_to_closest_pt and car_width_val == lane_width_val:
             heading = car_heading
         else:
-            heading_change = abs(heading_to_closest_pt - car_heading)
-            if heading_change > max_heading_change:
-                heading_change = max_heading_change
-
-            if heading_to_closest_pt - car_heading > 0:
-                heading = car_heading + heading_change
+            heading_change = heading_to_closest_pt - car_heading
+            if heading_change > 180:
+                heading_change = heading_change - 360
+            elif heading_change < -180:
+                heading_change = heading_change + 360
+            if heading_change > 0:
+                if heading_change > max_heading_change:
+                    heading_change = max_heading_change
             else:
-                heading = car_heading - heading_change
+                if heading_change < -max_heading_change:
+                    heading_change = -max_heading_change
+            heading = car_heading + heading_change
         return heading
 
     def setup_drive_straight(self, data):
@@ -113,7 +120,6 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         car.set_direction(road.direction)
         data['dir_val_function'] = road.dir_val_exceeds
-        data['drive_guide'] = road.get_drive_guide(road.get_lane_obj(car).lane_id)
         return data
 
     def setup_drive_turn(self, data):
@@ -128,7 +134,7 @@ class RoutePlanner(ObjAdmin):
         car = data['car']
         road = data['road']
         f_dir_val = data['dir_val_function']
-        drive_guide = data['drive_guide']
+        drive_guide = road.get_drive_guide(road.get_lane_obj(car).lane_id)
         car_refn_location = 'midtop'
 
         if car.point_in_rect(car_refn_location, road):
