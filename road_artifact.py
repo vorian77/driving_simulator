@@ -150,7 +150,7 @@ class ObjRoadArtifactMove(obj_lib.ObjImageMove, ObjRoadArtifact):
         pass
 
     def path_is_clear(self, car):
-        objs = [artifact for artifact in self.road.artifacts if isinstance(artifact, obj_lib.ObjImageMove)]
+        objs = [artifact for artifact in self.road.artifacts if isinstance(artifact, obj_lib.ObjImageMove) and artifact is not self]
         objs.append(car)
         return not self.collision_buffer or self.collision_buffer.is_clear(objs)
 

@@ -38,6 +38,22 @@ def pixels_per_update(speed):
     # to distance traveled in 1 update cycle
     return math.ceil(speed / 30)
 
+def get_drive_guide(road, start, end, length_gap):
+    # creates straight drive guide for road,
+    # given start and end points, and gap between points
+    points = []
+    length_diff = (end[road.axis_idx_length] - start[road.axis_idx_length]) * road.graph_dir_length
+    point_cnt = int(length_diff / length_gap)
+    width_diff = (end[road.axis_idx_width] - start[road.axis_idx_width]) * road.graph_dir_width
+    width_gap = width_diff / point_cnt
+
+    for point in range(point_cnt):
+        c = [0, 0]
+        c[road.axis_idx_length] = int(start[road.axis_idx_length] + (point * length_gap))
+        c[road.axis_idx_width] = int(start[road.axis_idx_width] + (point * width_gap))
+        points.append(c)
+    return points
+
 class Timer():
     def __init__(self, pygame, duration):
         self.pygame = pygame

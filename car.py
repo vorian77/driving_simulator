@@ -453,6 +453,7 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
                 # draw end point
                 self.pygame.draw.circle(road.screen, road.COLOR_RED, end_point, 2)
 
+
                 if road.dir_val_exceeds(end_point, car_location):
                     # continue lane change
                     heading = u.heading(car_location, end_point)

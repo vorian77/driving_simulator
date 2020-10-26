@@ -205,18 +205,7 @@ class Lane(rect_lib.RectDirection):
         return (left, top, width, height)
 
     def get_drive_guide(self):
-        points = []
-
-        center = self.gnav('cw')
-        bottom = self.gnav('bottom')
-        top = bottom + (self.graph_dir_length * self.gnav('height'))
-
-        for length_pos in range(bottom, top, self.graph_dir_length * 3):
-            c = [0, 0]
-            c[self.axis_idx_width] = center
-            c[self.axis_idx_length] = length_pos
-            points.append(c)
-        return points
+        return u.get_drive_guide(self.road_current, self.gnav('midbottom'), self.gnav('midtop'), 3)
 
     def draw(self):
         # draw lane markers
