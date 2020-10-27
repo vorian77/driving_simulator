@@ -449,6 +449,10 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
 
             self.pygame.draw.rect(car.screen, car.COLOR_YELLOW, collision_zone)
 
+            # changed collision zone to drive guide
+            drive_guide = u.get_drive_guide(road, car.gnav('center'), end_point, 3)
+            road.draw_drive_guide(car, 'center', drive_guide)
+
             if is_clear(road, collision_zone):
                 # draw end point
                 self.pygame.draw.circle(road.screen, road.COLOR_RED, end_point, 2)
