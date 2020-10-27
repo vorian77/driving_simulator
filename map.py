@@ -6,6 +6,7 @@ class ObjMap(obj.Obj):
 
     def __init__(self, pygame, screen, car, map_parms):
         super().__init__(pygame, screen)
+        self.road_id = -1
         self.car = car
         self.lane_cnt = map_parms[0]
         self.car_start_lane = map_parms[1]
@@ -24,15 +25,14 @@ class ObjMap(obj.Obj):
             # intersection
             if len(roads) > 0:
                 road_prev = roads[-1]
-                pr_dir = road_prev.direction
-                if pr_dir == direction:
-                    roads.append(road_lib.RoadStraightIntersection(self.pygame, self.screen, road_prev))
+                if direction == road_prev.direction:
+                    roads.append(road_lib.RoadStraightIntersection(self.pygame, self.screen, self.get_next_road_id(), road_prev))
                 else:
-                    roads.append(road_lib.RoadIntersectionTurn(self.pygame, self.screen, road_prev, direction, self.lane_cnt))
+                    roads.append(road_lib.RoadIntersectionTurn(self.pygame, self.screen, self.get_next_road_id(), road_prev, direction, self.lane_cnt))
                 road_prev = roads[-1]
 
             # primary rect.py
-            roads.append(road_lib.RoadStraightPrimary(self.pygame, self.screen, road_prev, self.lane_cnt, length, direction, ad))
+            roads.append(road_lib.RoadStraightPrimary(self.pygame, self.screen, self.get_next_road_id(), road_prev, self.lane_cnt, length, direction, ad))
         return roads
 
     def init_car(self):
@@ -48,6 +48,10 @@ class ObjMap(obj.Obj):
     def draw(self):
         for road in self.roads:
             road.draw()
+
+    def get_next_road_id(self):
+        self.road_id += 1
+        return self.road_id
 
     def get_road_first(self):
         if len(self.roads) == 0:

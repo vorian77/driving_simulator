@@ -17,17 +17,10 @@ class Obj:
     COLOR_TEAL = (0, 128, 128)
     COLOR_WHITE = (255, 255, 255)
     COLOR_YELLOW = (255, 255, 0)
-    _ID = 0
 
     def __init__(self, pygame, screen):
         self.pygame = pygame
         self.screen = screen
-        self.id = self.get_id()
-
-    def get_id(self):
-        new_id = self.__class__._ID
-        self.__class__._ID += 1
-        return new_id
 
     def update(self, *kwargs):
         pass
@@ -42,6 +35,7 @@ class ObjImage(Obj, rect_lib.RectDirection):
 
     def __init__(self, pygame, screen, image_file, initial_direction=0):
         Obj.__init__(self, pygame, screen)
+        self.id = None
         self.initial_direction = initial_direction
         self.heading = None
         self.speed = 0

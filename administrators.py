@@ -57,7 +57,8 @@ class RoutePlanner(ObjAdmin):
             if isinstance(road, road_lib.RoadStraight):
                 return (self.car, self.process_drive_straight)
             elif isinstance(road, road_lib.RoadIntersectionTurn):
-                return (self.car, self.process_drive_turn)
+                data = self.setup_drive_turn(self.car, road)
+                return (data, self.process_drive_turn)
         return None
 
     def get_closest_point(self, refn_point, speed, drive_guide, f_dir_val):
@@ -79,7 +80,7 @@ class RoutePlanner(ObjAdmin):
         return car.heading if not closest_pt else u.heading(car_refn_point, closest_pt)
 
     def get_car_heading_straight(self, car, car_refn_location, drive_guide, f_dir_val):
-        max_heading_change = 4  # degrees
+        max_heading_change = 7  # degrees
 
         car_refn_point = car.gnav(car_refn_location)
         closest_pt = self.get_closest_point(car_refn_point, car.speed, drive_guide, f_dir_val)
@@ -113,7 +114,7 @@ class RoutePlanner(ObjAdmin):
 
     def process_drive_straight(self, car):
         road = self.map.get_road_obj(self.car)
-        drive_guide = road.get_drive_guide(road.get_lane_obj(car).lane_id)
+        drive_guide = road.get_drive_guide(road.get_lane_id(car))
         f_dir_val = road.dir_val_exceeds
         car.set_direction(road.direction)
         car_refn_location = 'midtop'
@@ -127,9 +128,16 @@ class RoutePlanner(ObjAdmin):
         else:
             return None
 
-    def process_drive_turn(self, car):
+    def setup_drive_turn(self, car, road):
+        data = {'car': car}
+        data['drive_guide'] = road.get_drive_guide(road.get_lane_obj(car).lane_id)
+        return data
+
+    def process_drive_turn(self, data):
+        car = data['car']
+        drive_guide = data['drive_guide']
+
         road = self.map.get_road_obj(self.car)
-        drive_guide = road.get_drive_guide(road.get_lane_obj(car).lane_id)
         end_of_turn = drive_guide[-1]
         f_dir_val = road.dir_val_exceeds
         road = self.map.get_road_obj(self.car)

@@ -6,8 +6,9 @@ class ObjRoadArtifact():
     """rect.py artifact"""
     # icons: www.flaticon.com
 
-    def __init__(self, road, artifact_def):
+    def __init__(self, road, artifact_id, artifact_def):
         self.road = road
+        self.id = artifact_id
         self.type = artifact_def[0]
         self.segment = artifact_def[1]
         self.pos_length = artifact_def[2]
@@ -63,66 +64,66 @@ class ObjRoadArtifact():
 
 
 class ObjRoadArtifactStationary(obj_lib.ObjImage, ObjRoadArtifact):
-    def __init__(self, pygame, screen, road, image_file, artifact_def):
+    def __init__(self, pygame, screen, road, image_file, artifact_id, artifact_def):
         obj_lib.ObjImage.__init__(self, pygame, screen, image_file)
-        ObjRoadArtifact.__init__(self, road, artifact_def)
+        ObjRoadArtifact.__init__(self, road, artifact_id, artifact_def)
 
     def update(self, car):
         self.init_pos(self)
 
 
 class ObjRoadArtifactStationaryDestination(ObjRoadArtifactStationary):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_destination_32.png'
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
 
 
 class ObjRoadArtifactStationarySignSpeed(ObjRoadArtifactStationary):
-    def __init__(self, pygame, screen, road, artifact_def, image_file, speed):
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def, image_file, speed):
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
         self.speed = speed
 
 
 class ObjRoadArtifactStationarySignSpeed15(ObjRoadArtifactStationarySignSpeed):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_speed_15.png'
-        super().__init__(pygame, screen, road, artifact_def, image_file, 15)
+        super().__init__(pygame, screen, road, artifact_id, artifact_def, image_file, 15)
 
 
 class ObjRoadArtifactStationarySignSpeed25(ObjRoadArtifactStationarySignSpeed):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_speed_25.png'
-        super().__init__(pygame, screen, road, artifact_def, image_file, 25)
+        super().__init__(pygame, screen, road, artifact_id, artifact_def, image_file, 25)
 
 
 class ObjRoadArtifactStationarySignSpeed45(ObjRoadArtifactStationarySignSpeed):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_speed_45.png'
-        super().__init__(pygame, screen, road, artifact_def, image_file, 45)
+        super().__init__(pygame, screen, road, artifact_id, artifact_def, image_file, 45)
 
 
 class ObjRoadArtifactStationarySignSpeed55(ObjRoadArtifactStationarySignSpeed):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_speed_55.png'
-        super().__init__(pygame, screen, road, artifact_def, image_file, 55)
+        super().__init__(pygame, screen, road, artifact_id, artifact_def, image_file, 55)
 
 
 class ObjRoadArtifactStationarySignSpeed65(ObjRoadArtifactStationarySignSpeed):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_speed_65.png'
-        super().__init__(pygame, screen, road, artifact_def, image_file, 65)
+        super().__init__(pygame, screen, road, artifact_id, artifact_def, image_file, 65)
 
 
 class ObjRoadArtifactStationarySignStop(ObjRoadArtifactStationary):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/sign_stop_24.png'
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
 
 
 class ObjRoadArtifactStationarySignTrafficLight(ObjRoadArtifactStationary):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         self.image_files = ['images/sign_traffic_light_green_32.png', 'images/sign_traffic_light_red_32.png']
-        super().__init__(pygame, screen, road, self.image_files[0], artifact_def)
+        super().__init__(pygame, screen, road, self.image_files[0], artifact_id, artifact_def)
         self.red = True
         self.timer = u.Timer(pygame, 3)
         self.image = self.load_image(self.image_files[self.red])
@@ -136,9 +137,9 @@ class ObjRoadArtifactStationarySignTrafficLight(ObjRoadArtifactStationary):
 
 
 class ObjRoadArtifactMove(obj_lib.ObjImageMove, ObjRoadArtifact):
-    def __init__(self, pygame, screen, road, image_file, artifact_def):
+    def __init__(self, pygame, screen, road, image_file, artifact_id, artifact_def):
         obj_lib.ObjImageMove.__init__(self, pygame, screen, image_file)
-        ObjRoadArtifact.__init__(self, road, artifact_def)
+        ObjRoadArtifact.__init__(self, road, artifact_id, artifact_def)
         self.speed = 1
         self.lane = None
         self.heading_move = None
@@ -180,8 +181,8 @@ class ObjRoadArtifactMove(obj_lib.ObjImageMove, ObjRoadArtifact):
 
 
 class ObjRoadArtifactMoveVertical(ObjRoadArtifactMove):
-    def __init__(self, pygame, screen, road, image_file, artifact_def):
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+    def __init__(self, pygame, screen, road, image_file, artifact_id, artifact_def):
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
         self.heading_move = self.get_angle_current()
         self.rotate(self.heading_move)
 
@@ -201,8 +202,8 @@ class ObjRoadArtifactMoveVertical(ObjRoadArtifactMove):
 
 
 class ObjRoadArtifactMoveHorizontal(ObjRoadArtifactMove):
-    def __init__(self, pygame, screen, road, image_file, artifact_def):
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+    def __init__(self, pygame, screen, road, image_file, artifact_id, artifact_def):
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
         self.move_dir_factor = None
         self.f_boundary = None
         self.boundary_width_axis_val = None
@@ -247,9 +248,9 @@ class ObjRoadArtifactMoveHorizontal(ObjRoadArtifactMove):
 
 
 class ObjRoadArtifactMovePedestrian(ObjRoadArtifactMoveHorizontal):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/person_24.png'
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
 
     def path_is_clear(self, car):
         if super().path_is_clear(car):
@@ -263,9 +264,9 @@ class ObjRoadArtifactMovePedestrian(ObjRoadArtifactMoveHorizontal):
             return False
 
 class ObjRoadArtifactMoveVehicle(ObjRoadArtifactMoveVertical):
-    def __init__(self, pygame, screen, road, artifact_def):
+    def __init__(self, pygame, screen, road, artifact_id, artifact_def):
         image_file = 'images/vehicle_car_black_32.png'
-        super().__init__(pygame, screen, road, image_file, artifact_def)
+        super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
 
 
 CLASSES = {

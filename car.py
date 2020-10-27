@@ -241,8 +241,7 @@ class ClassifierSimulator(Classifier):
         # * False - artifact is in a lane, but not the car's lane
         artifact_lane_id = artifact.pos_width
         if type(artifact_lane_id) is int:
-            car_lane = road.get_lane_obj(car)
-            feature['same_lane'] = artifact_lane_id == car_lane.lane_id
+            feature['same_lane'] = artifact_lane_id == status['location']['lane'].lane_id
         else:
             feature['same_lane'] = None
 
@@ -389,8 +388,6 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
         road = data['status']['location']['road']
         artifact = feature['artifact']
 
-        current_lane_id = road.get_lane_obj(car).lane_id
-
         if road.lane_cnt == 1:
             # only 1 lane - match speed of car
             data['type'] = 'single_lane'
@@ -398,77 +395,44 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
         else:
             # select adjoining lane
             data['type'] = 'multiple_lane'
+            current_lane_id = status['location']['lane'].lane_id
             if current_lane_id - 1 >= 0:
                 new_lane_id = current_lane_id - 1
             else:
                 new_lane_id = current_lane_id + 1
             new_lane = road.lanes[new_lane_id]
 
-            if road.direction == 0:
-                left = new_lane.left
-                top = max(artifact.gnav('top'), new_lane.gnav('top'))
-                width = new_lane.width
-                height = car.gnav('top') - top
-                data['collision_zone'] = self.pygame.Rect(left, top, width, height)
-                data['end_point'] = data['collision_zone'].midtop
-            elif road.direction == 1:
-                left = new_lane.left
-                top = car.gnav('top')
-                width = new_lane.width
-                height = min(artifact.gnav('top'), new_lane.gnav('top')) - top
-                data['collision_zone'] = self.pygame.Rect(left, top, width, height)
-                data['end_point'] = data['collision_zone'].midbottom
-            elif road.direction == 2:
-                left = max(artifact.gnav('top'), new_lane.gnav('top'))
-                top = new_lane.top
-                width = car.gnav('top') - left
-                height = new_lane.height
-                data['collision_zone'] = self.pygame.Rect(left, top, width, height)
-                data['end_point'] = data['collision_zone'].midleft
-            elif road.direction == 3:
-                left = car.gnav('top')
-                top = new_lane.top
-                width = artifact.gnav('bottom') - left
-                height = new_lane.height
-                data['collision_zone'] = self.pygame.Rect(left, top, width, height)
-                data['end_point'] = data['collision_zone'].midright
+            # set end_point
+            end_point = [0, 0]
+            end_point[new_lane.axis_idx_width] = new_lane.gnav('cw')
+            end_point[new_lane.axis_idx_length] = artifact.gnav('bottom')
+            data['end_point'] = end_point
         return data
 
     def process_function(self, data):
-        def is_clear(road, collision_zone):
-            moving_objects = [artifact for artifact in road.artifacts if isinstance(artifact, obj_lib.ObjImageMove)]
-            return collision_zone.collidelist(moving_objects) == -1
-
         def change_lane(data):
             car = data['status']['car']
             road = data['status']['location']['road']
 
-            collision_zone = data['collision_zone']
-            car_location = car.gnav('center')
+            car_location_pos = 'center'
+            car_location = car.gnav(car_location_pos)
             end_point = data['end_point']
 
-            self.pygame.draw.rect(car.screen, car.COLOR_YELLOW, collision_zone)
+            # create and draw drive guide
+            drive_guide = u.get_drive_guide(road, car_location, end_point)
+            road.draw_drive_guide(car, car_location_pos, drive_guide)
 
-            # changed collision zone to drive guide
-            drive_guide = u.get_drive_guide(road, car.gnav('center'), end_point, 3)
-            road.draw_drive_guide(car, 'center', drive_guide)
+            # draw end point
+            self.pygame.draw.circle(road.screen, road.COLOR_RED, end_point, 2)
 
-            if is_clear(road, collision_zone):
-                # draw end point
-                self.pygame.draw.circle(road.screen, road.COLOR_RED, end_point, 2)
-
-
-                if road.dir_val_exceeds(end_point, car_location):
-                    # continue lane change
-                    heading = u.heading(car_location, end_point)
-                    car.draw_heading(heading)
-                    self.msg(f'Changing lane to avoid vehicle...')
-                    return car.make_instruction(heading, car.speed_prev)
-                else:
-                    return self.status_set_inactive(data)
+            if road.dir_val_exceeds(end_point, car_location):
+                # continue lane change
+                heading = u.heading(car_location, end_point)
+                car.draw_heading(heading)
+                self.msg(f'Changing lane to avoid vehicle...')
+                return car.make_instruction(heading, car.speed_prev)
             else:
-                self.msg(f'Waiting for adjacent lane to clear...')
-                return car.make_instruction(None, 0)
+                return self.status_set_inactive(data)
 
         def slow_down(data):
             car = data['status']['car']

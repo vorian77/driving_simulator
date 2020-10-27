@@ -8,10 +8,10 @@ import utilities as u
 class Road(obj_lib.Obj, rect_lib.RectDirection):
     LANE_WIDTH = 5.0  # 3.7 meters + buffer for lines
 
-    def __init__(self, pygame, screen, rect_parms, direction_road, direction_lanes, road_prev, lane_cnt, artifacts_def=None):
+    def __init__(self, pygame, screen, id, rect_parms, direction_road, direction_lanes, road_prev, lane_cnt, artifacts_def=None):
         obj_lib.Obj.__init__(self, pygame, screen)
         rect_lib.RectDirection.__init__(self, rect_parms, direction_road)
-
+        self.id = id
         self.road_prev = road_prev
         self.lane_cnt = lane_cnt
         self.lanes = self.init_lanes(direction_lanes, lane_cnt)
@@ -31,10 +31,10 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
         if not artifacts_def:
             return artifacts
 
-        for artifact_def in artifacts_def:
+        for artifact_id, artifact_def in enumerate(artifacts_def):
             type = artifact_def[0]
             artifact_class = ra.CLASSES[type]
-            artifacts.append(artifact_class(self.pygame, self.screen, self, artifact_def))
+            artifacts.append(artifact_class(self.pygame, self.screen, self, artifact_id, artifact_def))
         return artifacts
 
     def get_drive_guide(self, lane_id):
@@ -68,8 +68,9 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             raise ValueError(f"Invalid border: {border}. Must be top, bottom, left, or right.")
         self.draw_line(color, p0, p1)
 
-    def draw_drive_guide(self, obj, obj_ref_location, drive_guide, f_dir_val):
+    def draw_drive_guide(self, obj, obj_ref_location, drive_guide):
         obj_refn_point = obj.gnav(obj_ref_location)
+        f_dir_val = self.dir_val_exceeds
         for p in drive_guide:
             if f_dir_val(p, obj_refn_point):
                 self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
@@ -78,12 +79,14 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
         for lane in self.lanes:
             if obj.in_rect(lane):
                 return lane
-        return None
+
+    def get_lane_id(self, obj):
+        return self.get_lane_obj(obj).lane_id
 
 class RoadStraight(Road):
-    def __init__(self, pygame, screen, road_prev, length, direction_road, lane_cnt, artifacts_def=None):
+    def __init__(self, pygame, screen, id, road_prev, length, direction_road, lane_cnt, artifacts_def=None):
         rect_parms = self.init_parms(screen, road_prev, lane_cnt, length, direction_road)
-        super().__init__(pygame, screen, rect_parms, direction_road, direction_road, road_prev, lane_cnt, artifacts_def)
+        super().__init__(pygame, screen, id, rect_parms, direction_road, direction_road, road_prev, lane_cnt, artifacts_def)
 
     def init_parms(self, screen, road_prev, lane_cnt, length, direction):
         rw = self.get_lane_width() * lane_cnt
@@ -138,8 +141,8 @@ class RoadStraight(Road):
 
 
 class RoadStraightPrimary(RoadStraight):
-    def __init__(self, pygame, screen, road_prev, lane_cnt, length, direction_road, artifacts_def):
-        super().__init__(pygame, screen, road_prev, length, direction_road, lane_cnt, artifacts_def)
+    def __init__(self, pygame, screen, id, road_prev, lane_cnt, length, direction_road, artifacts_def):
+        super().__init__(pygame, screen, id, road_prev, length, direction_road, lane_cnt, artifacts_def)
 
     def draw(self):
         super().draw()
@@ -154,11 +157,11 @@ class RoadStraightPrimary(RoadStraight):
 
 
 class RoadStraightIntersection(RoadStraight):
-    def __init__(self, pygame, screen, road_prev):
+    def __init__(self, pygame, screen, id, road_prev):
         lane_cnt = road_prev.lane_cnt
         length = None
         direction = road_prev.direction
-        super().__init__(pygame, screen, road_prev, length, direction, lane_cnt)
+        super().__init__(pygame, screen, id, road_prev, length, direction, lane_cnt)
 
 
 class Lane(rect_lib.RectDirection):
@@ -205,7 +208,7 @@ class Lane(rect_lib.RectDirection):
         return (left, top, width, height)
 
     def get_drive_guide(self):
-        return u.get_drive_guide(self.road_current, self.gnav('midbottom'), self.gnav('midtop'), 3)
+        return u.get_drive_guide(self.road_current, self.gnav('midbottom'), self.gnav('midtop'))
 
     def draw(self):
         # draw lane markers
@@ -252,9 +255,9 @@ class Lane(rect_lib.RectDirection):
 
 
 class RoadIntersectionTurn(Road):
-    def __init__(self, pygame, screen, road_prev, direction_next_road, lane_cnt):
+    def __init__(self, pygame, screen, id, road_prev, direction_next_road, lane_cnt):
         rect_parms = self.get_rect_parms(road_prev)
-        super().__init__(pygame, screen, rect_parms, direction_next_road, road_prev.direction, road_prev, lane_cnt)
+        super().__init__(pygame, screen, id, rect_parms, direction_next_road, road_prev.direction, road_prev, lane_cnt)
 
     def get_rect_parms(self, road_prev):
         def modify_pt(rect_road, point, length_axis_value_factor, length_axis_value):
