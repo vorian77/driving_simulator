@@ -189,6 +189,10 @@ class Classifier(obj_lib.Obj):
     def process_function(self, data):
         pass
 
+    def send_instruction(self, car, heading, speed, text):
+        car.draw_outline(text)
+        return car.make_instruction(heading, speed)
+
     def reset(self):
         self.status = {}
 
@@ -277,8 +281,7 @@ class ClassiferSimulatorStationaryDestination(ClassiferSimulatorStationary):
         car = data['status']['car']
         ticks = self.pygame.time.get_ticks()
         if ticks < data['complete']:
-            car.draw_outline('Waiting at destination')
-            return car.make_instruction(None, 0)
+            return self.send_instruction(car, None, 0, 'Waiting at destination')
         else:
             return 'arrived'
 
@@ -292,9 +295,8 @@ class ClassiferSimulatorStationarySignSpeed(ClassiferSimulatorStationary):
         car = data['status']['car']
 
         if car.speed != self.speed:
-            car.draw_outline(f'Setting speed to: {self.speed}')
             car.speed_prev = self.speed  # allow temporary speed changes to be reset
-            return car.make_instruction(None, self.speed)
+            return self.send_instruction(car, None, self.speed, f'Setting speed to: {self.speed}')
         else:
             feature = data['feature']
             self.process_complete(feature)
@@ -338,8 +340,7 @@ class ClassiferSimulatorStationarySignStop(ClassiferSimulatorStationary):
         car = data['status']['car']
         ticks = self.pygame.time.get_ticks()
         if ticks < data['complete']:
-            car.draw_outline('Waiting at stop sign')
-            return car.make_instruction(None, 0)
+            return self.send_instruction(car, None, 0, 'Waiting at stop sign')
         else:
             car.restore_speed()
             self.process_complete(data['feature'])
@@ -354,8 +355,7 @@ class ClassiferSimulatorStationarySignTrafficLight(ClassiferSimulatorStationary)
         feature = data['feature']
         artifact = feature['artifact']
         if artifact.red:
-            car.draw_outline('Waiting at red traffic light')
-            return car.make_instruction(None, 0)
+            return self.send_instruction(car, None, 0, 'Waiting at red traffic light')
         else:
             car.restore_speed()
             self.process_complete(feature)
@@ -426,9 +426,7 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
             if road.dir_val_exceeds(end_point, car_location):
                 # continue lane change
                 heading = u.heading(car_location, end_point)
-                car.draw_heading(heading)
-                self.msg(f'Changing lane to avoid vehicle...')
-                return car.make_instruction(heading, car.speed_prev)
+                return self.send_instruction(car, heading, car.speed_prev, f'Changing lane to avoid slow moving vehicle')
             else:
                 return self.status_set_inactive(data)
 
@@ -443,9 +441,9 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
                 pos_current = artifact.gnav('bottom')
                 speed = (pos_current - pos_prev)  # speed is distance per clock cycle
                 data['artifact_pos'] = pos_current
-                car.draw_collision_buffer('Reducing speed for slow vehicle')
-                return car.make_instruction(artifact.heading, speed)
+                return self.send_instruction(car, artifact.heading, speed, 'Reducing speed for slow vehicle')
             else:
+                car.restore_speed()
                 return self.status_set_inactive(data)
 
         ## process_function()
@@ -470,8 +468,8 @@ class ClassiferSimulatorMovePedestrian(ClassifierSimulatorMove):
         car = data['status']['car']
         pedestrian = data['feature']['artifact']
         if self.in_collision_buffer(car, pedestrian):
-            car.draw_collision_buffer('Waiting for pedestrian')
-            return car.make_instruction(None, 0)
+            car.draw_collision_buffer()
+            return self.send_instruction(car, None, 0, 'Waiting for pedestrian')
         else:
             car.restore_speed()
             return super().status_set_inactive(data)

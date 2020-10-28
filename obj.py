@@ -183,9 +183,10 @@ class ObjImageMove(ObjImage):
     def draw(self):
         super().draw()
 
-    def draw_collision_buffer(self, text):
+    def draw_collision_buffer(self, text=None):
         self.pygame.draw.rect(self.screen, self.COLOR_YELLOW, self.collision_buffer)
-        self.msg(f'{text}...')
+        if text:
+            self.msg(text)
 
     def draw_outline(self, text):
         self.pygame.draw.rect(self.screen, self.COLOR_RED, self, 1)
