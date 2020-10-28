@@ -105,21 +105,24 @@ class ObjImageMove(ObjImage):
             buffer_size = 10  # pixels
 
             def get_buffer_val(self, parms):
-                val = self.gnav(parms[0]) if parms[0] != '' else 0
-                val += parms[1] * buffer_size
-                return val
+                if len(parms) == 1:
+                    return parms[0] * buffer_size
+                elif len(parms) == 2:
+                    return self.gnav(parms[1]) + (parms[0] * buffer_size)
+                else:
+                    return parms[1].gnav(parms[2]) + (parms[0] * buffer_size)
 
-            ## create_buffer()
-            left = get_buffer_val(self, parms[0])
-            top = get_buffer_val(self, parms[1])
-            width = get_buffer_val(self, parms[2])
-            height = get_buffer_val(self, parms[3])
-            self.collision_buffer = rect_lib.Rect((left, top, width, height))
+            ## create_collision_buffer()
+            if parms:
+                left = get_buffer_val(self, parms[0])
+                top = get_buffer_val(self, parms[1])
+                width = get_buffer_val(self, parms[2])
+                height = get_buffer_val(self, parms[3])
+                self.collision_buffer = rect_lib.Rect((left, top, width, height))
 
         ## move()
         heading = instruction['heading']
         speed = instruction['speed']
-
         move_obj(heading, speed)
         create_collision_buffer(self.collision_buffer_parms)
 
@@ -147,27 +150,34 @@ class ObjImageMove(ObjImage):
             return True
         return False
 
-    def set_collision_buffer_parms(self, side):
-        if side == 'top':
+    def set_collision_buffer_parms(self, side, lane=None):
+        if side == 'top-lane':
             self.collision_buffer_parms = (
-                (('left', 0), ('top', -1), ('width', 0), ('', 1)),
-                (('right', 0), ('top', 0), ('width', 0), ('', 1)),
-                (('top', -1), ('right', 0), ('', 1), ('width', 0)),
-                (('top', 0), ('left', 0), ('', 1), ('width', 0))
+                ((0, lane, 'left'), (-1, self, 'top'), (0, lane, 'width'), [1]),
+                ((0, lane, 'right'), (0, self, 'top'), (0, lane, 'width'), [1]),
+                ((-1, self, 'top'), (0, lane, 'right'), [1], (0, lane, 'width')),
+                ((0, self, 'top'), (0, lane, 'left'), [1], (0, lane, 'width'))
+            )[self.direction]
+        elif side == 'top-front':
+            self.collision_buffer_parms = (
+                ((0, 'left'), (-1, 'top'), (0, 'width'), [1]),
+                ((0, 'right'), (0, 'top'), (0, 'width'), [1]),
+                ((-1, 'top'), (0, 'right'), [1], (0, 'width')),
+                ((0, 'top'), (0, 'left'), [1], (0, 'width'))
             )[self.direction]
         elif side == 'left':
             self.collision_buffer_parms = (
-                (('right', 0), ('top', 0), ('', 1), ('height', 0)),
-                (('right', -1), ('bottom', 0), ('', 1), ('height', 0)),
-                (('top', 0), ('right', -1), ('height', 0), ('', 1)),
-                (('bottom', 0), ('right', 0), ('height', 0), ('', 1))
+                ((0, 'right'), (0, 'top'), [1], (0, 'height')),
+                ((-1, 'right'), (0, 'bottom'), [1], (0, 'height')),
+                ((0, 'top'), (-1, 'right'), (0, 'height'), [1]),
+                ((0, 'bottom'), (0, 'right'), (0, 'height'), [1])
             )[self.direction]
         elif side == 'right':
             self.collision_buffer_parms = (
-                (('left', -1), ('top', 0), ('', 1), ('height', 0)),
-                (('left', 0), ('bottom', 0), ('', 1), ('height', 0)),
-                (('top', 0), ('left', 0), ('height', 0), ('', 1)),
-                (('bottom', 0), ('left', -1), ('height', 0), ('', 1))
+                ((-1, 'left'), (0, 'top'), [1], (0, 'height')),
+                ((0, 'left'), (0, 'bottom'), [1], (0, 'height')),
+                ((0, 'top'), (0, 'left'), (0, 'height'), [1]),
+                ((0, 'bottom'), (-1, 'left'), (0, 'height'), [1])
             )[self.direction]
 
     def draw(self):

@@ -114,9 +114,11 @@ class RoutePlanner(ObjAdmin):
 
     def process_drive_straight(self, car):
         road = self.map.get_road_obj(self.car)
-        drive_guide = road.get_drive_guide(road.get_lane_id(car))
+        lane = road.get_lane(car)
+        drive_guide = road.get_drive_guide(lane.lane_id)
         f_dir_val = road.dir_val_exceeds
         car.set_direction(road.direction)
+        car.set_collision_buffer_parms('top-lane', lane)
         car_refn_location = 'midtop'
 
         if car.point_in_rect(car_refn_location, road):
@@ -130,19 +132,18 @@ class RoutePlanner(ObjAdmin):
 
     def setup_drive_turn(self, car, road):
         data = {'car': car}
-        data['drive_guide'] = road.get_drive_guide(road.get_lane_obj(car).lane_id)
+        data['drive_guide'] = road.get_drive_guide(road.get_lane(car).lane_id)
+        car.set_direction(road.direction)
+        car.set_collision_buffer_parms('top-front')
         return data
 
     def process_drive_turn(self, data):
         car = data['car']
         drive_guide = data['drive_guide']
 
-        road = self.map.get_road_obj(self.car)
-        end_of_turn = drive_guide[-1]
+        road = self.map.get_road_obj(car)
         f_dir_val = road.dir_val_exceeds
-        road = self.map.get_road_obj(self.car)
-
-        car.set_direction(road.direction)
+        end_of_turn = drive_guide[-1]
         car_refn_location = 'center'
 
         if f_dir_val(end_of_turn, car.gnav(car_refn_location)):

@@ -185,10 +185,11 @@ class ObjRoadArtifactMoveVertical(ObjRoadArtifactMove):
         super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
         self.heading_move = self.get_angle_current()
         self.rotate(self.heading_move)
+        self.init_collision_buffer()
 
-    def set_direction(self, direction):
-        super().set_direction(direction)
-        self.set_collision_buffer_parms('top')
+    def init_collision_buffer(self):
+        lane = self.pos_parms['width_road_rect']
+        self.set_collision_buffer_parms('top-lane', lane)
 
     def restart(self):
         self.init_pos(self)
@@ -252,16 +253,6 @@ class ObjRoadArtifactMovePedestrian(ObjRoadArtifactMoveHorizontal):
         image_file = 'images/person_24.png'
         super().__init__(pygame, screen, road, image_file, artifact_id, artifact_def)
 
-    def path_is_clear(self, car):
-        if super().path_is_clear(car):
-            return True
-
-        # path is not clear: if car is waiting for ped,
-        # allow ped to continue
-        if car in self.collision_buffer.contains([car]):
-            return car.speed == 0
-        else:
-            return False
 
 class ObjRoadArtifactMoveVehicle(ObjRoadArtifactMoveVertical):
     def __init__(self, pygame, screen, road, artifact_id, artifact_def):

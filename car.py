@@ -29,10 +29,6 @@ class ObjCar(obj_lib.ObjImageMove):
         end_y = start_point[1] + -round(length * np.sin(theta))
         self.pygame.draw.lines(self.screen, (0, 255, 0), False, [start_point, (end_x, end_y)], 1)
 
-    def set_direction(self, direction):
-        super().set_direction(direction)
-        self.set_collision_buffer_parms('top')
-
     def update(self, map):
         status = self.get_status(map)
         for sensor in self.sensors:
@@ -61,7 +57,7 @@ class ObjCar(obj_lib.ObjImageMove):
         location = {}
         road = status['map'].get_road_obj(status['car'])
         location['road'] = road
-        location['lane'] = road.get_lane_obj(self)
+        location['lane'] = road.get_lane(self)
         return location
 
 
@@ -407,6 +403,8 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
             end_point[new_lane.axis_idx_width] = new_lane.gnav('cw')
             end_point[new_lane.axis_idx_length] = artifact.gnav('bottom')
             data['end_point'] = end_point
+
+            car.set_collision_buffer_parms('top-front')
         return data
 
     def process_function(self, data):

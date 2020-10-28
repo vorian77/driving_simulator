@@ -75,13 +75,13 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             if f_dir_val(p, obj_refn_point):
                 self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
 
-    def get_lane_obj(self, obj):
+    def get_lane(self, obj):
         for lane in self.lanes:
             if obj.in_rect(lane):
                 return lane
 
     def get_lane_id(self, obj):
-        return self.get_lane_obj(obj).lane_id
+        return self.get_lane(obj).lane_id
 
 class RoadStraight(Road):
     def __init__(self, pygame, screen, id, road_prev, length, direction_road, lane_cnt, artifacts_def=None):
