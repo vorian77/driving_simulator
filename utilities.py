@@ -1,5 +1,6 @@
 import math
 
+
 # conversions
 def convert_road(km):
     ROAD_PIXELS_PER_KM = 153
@@ -36,26 +37,7 @@ def heading(start, end):
 def pixels_per_update(speed):
     # conversion from kilometers per hour
     # to distance traveled in 1 update cycle
-    return math.ceil(speed / 30)
-
-def get_drive_guide(road, start, end):
-    # creates straight drive guide for road,
-    # given start and end points, and gap between points
-    points = []
-    length_gap = 3 * road.graph_dir_length
-    point_cnt = int((end[road.axis_idx_length] - start[road.axis_idx_length]) / length_gap)
-    if point_cnt == 0:
-        return points
-
-    width_diff = end[road.axis_idx_width] - start[road.axis_idx_width]
-    width_gap = width_diff / point_cnt
-
-    for point in range(point_cnt):
-        c = [0, 0]
-        c[road.axis_idx_length] = int(start[road.axis_idx_length] + (point * length_gap))
-        c[road.axis_idx_width] = int(start[road.axis_idx_width] + (point * width_gap))
-        points.append(c)
-    return points
+    return math.ceil(speed / 20)
 
 class Timer():
     def __init__(self, pygame, duration):

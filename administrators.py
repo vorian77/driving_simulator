@@ -1,7 +1,7 @@
-import math
 import obj
 import road as road_lib
-import utilities as u
+import drive as drive_lib
+
 
 class ObjAdmin(obj.Obj):
     """administrator"""
@@ -49,107 +49,40 @@ class VehicleManagementSystem(ObjAdmin):
 class RoutePlanner(ObjAdmin):
     def __init__(self, pygame, screen, map):
         super().__init__(pygame, screen, map)
-        self.drive_plan_color = (255, 0, 0)
+        self.data = {'car': self.car, 'road': None, 'drive': None}
 
     def update(self):
         road = self.map.get_road_obj(self.car)
         if road:
+            self.data['road'] = road
             if isinstance(road, road_lib.RoadStraight):
-                return (self.car, self.process_drive_straight)
+                self.data = self.setup_drive_straight(self.data)
             elif isinstance(road, road_lib.RoadIntersectionTurn):
-                data = self.setup_drive_turn(self.car, road)
-                return (data, self.process_drive_turn)
+                self.data = self.setup_drive_turn(self.data)
+            return (self.data, self.process_drive)
         return None
 
-    def get_closest_point(self, refn_point, speed, drive_guide, f_dir_val):
-        min_distance = math.inf
-        min_point_idx = None
-        move_distance = u.pixels_per_update(speed)
-        for idx, point in enumerate(drive_guide):
-            if f_dir_val(point, refn_point):
-                d_car_to_point = u.cartesian_distance(refn_point, point)
-                if d_car_to_point > move_distance:
-                    if d_car_to_point < min_distance:
-                        min_distance = d_car_to_point
-                        min_point_idx = idx
-        return drive_guide[min_point_idx] if min_point_idx else None
-
-    def get_car_heading_turn(self, car, car_refn_location, drive_guide, f_dir_val):
-        car_refn_point = car.gnav(car_refn_location)
-        closest_pt = self.get_closest_point(car_refn_point, car.speed, drive_guide, f_dir_val)
-        return car.heading if not closest_pt else u.heading(car_refn_point, closest_pt)
-
-    def get_car_heading_straight(self, car, car_refn_location, drive_guide, f_dir_val):
-        max_heading_change = 7  # degrees
-
-        car_refn_point = car.gnav(car_refn_location)
-        closest_pt = self.get_closest_point(car_refn_point, car.speed, drive_guide, f_dir_val)
-        if not closest_pt:
-            return car.heading
-
-        # normalize car heading
-        car_heading = car.heading if car.heading > 0 else (360 - abs(car.heading))
-        car_heading = car_heading % 360
-
-        heading_to_closest_pt = u.heading(car_refn_point, closest_pt)
-        car_width_val = car.gnav('cw')
-        lane_width_val = closest_pt[car.axis_idx_width]
-
-        if car_heading == heading_to_closest_pt and car_width_val == lane_width_val:
-            heading = car_heading
-        else:
-            heading_change = heading_to_closest_pt - car_heading
-            if heading_change > 180:
-                heading_change = heading_change - 360
-            elif heading_change < -180:
-                heading_change = heading_change + 360
-            if heading_change > 0:
-                if heading_change > max_heading_change:
-                    heading_change = max_heading_change
-            else:
-                if heading_change < -max_heading_change:
-                    heading_change = -max_heading_change
-            heading = car_heading + heading_change
-        return heading
-
-    def process_drive_straight(self, car):
-        road = self.map.get_road_obj(self.car)
+    def setup_drive_straight(self, data):
+        car = data['car']
+        road = data['road']
         lane = road.get_lane(car)
-        drive_guide = road.get_drive_guide(lane.lane_id)
-        f_dir_val = road.dir_val_exceeds
+        lane_id = lane.lane_id
         car.set_direction(road.direction)
         car.set_collision_buffer_parms('top-lane', lane)
-        car_refn_location = 'midtop'
-
-        if car.point_in_rect(car_refn_location, road):
-            road.draw_drive_guide(car, car_refn_location, drive_guide)
-            target_heading = self.get_car_heading_straight(car, car_refn_location, drive_guide, f_dir_val)
-            if target_heading != road.get_angle_current():
-                car.draw_heading(target_heading)
-            return car.make_instruction(target_heading, None)
-        else:
-            return None
-
-    def setup_drive_turn(self, car, road):
-        data = {'car': car}
-        data['drive_guide'] = road.get_drive_guide(road.get_lane(car).lane_id)
-        car.set_direction(road.direction)
-        car.set_collision_buffer_parms('top-front')
+        data['drive'] = drive_lib.DriveStraight(self.pygame, self.screen, road, lane_id)
         return data
 
-    def process_drive_turn(self, data):
+    def setup_drive_turn(self, data):
         car = data['car']
-        drive_guide = data['drive_guide']
+        road = data['road']
+        lane_id = road.get_lane_id(car)
+        car.set_direction(road.direction)
+        car.set_collision_buffer_parms('top-front')
+        data['drive'] = drive_lib.DriveArcTurn(self.pygame, self.screen, road, lane_id)
+        return data
 
-        road = self.map.get_road_obj(car)
-        f_dir_val = road.dir_val_exceeds
-        end_of_turn = drive_guide[-1]
-        car_refn_location = 'center'
-
-        if f_dir_val(end_of_turn, car.gnav(car_refn_location)):
-            road.draw_drive_guide(car, car_refn_location, drive_guide)
-            target_heading = self.get_car_heading_turn(car, car_refn_location, drive_guide, f_dir_val)
-            car.draw_heading(target_heading)
-            return car.make_instruction(target_heading, None)
-        else:
-            return None
+    def process_drive(self, data):
+        car = data['car']
+        drive = data['drive']
+        target_heading = drive.get_heading(car)
+        return None if target_heading is None else car.make_instruction(target_heading, None)

@@ -37,9 +37,6 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             artifacts.append(artifact_class(self.pygame, self.screen, self, artifact_id, artifact_def))
         return artifacts
 
-    def get_drive_guide(self, lane_id):
-        pass
-
     def update(self, car):
         for artifact in self.artifacts:
             artifact.update(car)
@@ -68,13 +65,6 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
             raise ValueError(f"Invalid border: {border}. Must be top, bottom, left, or right.")
         self.draw_line(color, p0, p1)
 
-    def draw_drive_guide(self, obj, obj_ref_location, drive_guide):
-        obj_refn_point = obj.gnav(obj_ref_location)
-        f_dir_val = self.dir_val_exceeds
-        for p in drive_guide:
-            if f_dir_val(p, obj_refn_point):
-                self.pygame.draw.circle(self.screen, self.COLOR_RED, (p[0], p[1]), 0)
-
     def get_lane(self, obj):
         for lane in self.lanes:
             if obj.in_rect(lane):
@@ -82,6 +72,7 @@ class Road(obj_lib.Obj, rect_lib.RectDirection):
 
     def get_lane_id(self, obj):
         return self.get_lane(obj).lane_id
+
 
 class RoadStraight(Road):
     def __init__(self, pygame, screen, id, road_prev, length, direction_road, lane_cnt, artifacts_def=None):
@@ -135,9 +126,6 @@ class RoadStraight(Road):
             return starting_point_road_prev(road_prev, road_width, road_length, direction)
         else:
             return starting_point_initial(screen, road_width, road_length, direction)
-
-    def get_drive_guide(self, lane_id):
-        return self.lanes[lane_id].get_drive_guide()
 
 
 class RoadStraightPrimary(RoadStraight):
@@ -207,9 +195,6 @@ class Lane(rect_lib.RectDirection):
             height = lane_width
         return (left, top, width, height)
 
-    def get_drive_guide(self):
-        return u.get_drive_guide(self.road_current, self.gnav('midbottom'), self.gnav('midtop'))
-
     def draw(self):
         # draw lane markers
         def less_than(v1, v2):
@@ -277,57 +262,6 @@ class RoadIntersectionTurn(Road):
         )[road_prev.direction]
         starting_point = modify_pt(road_prev, parms[0], parms[1], rw)
         return (starting_point[0], starting_point[1], rw, rw)
-
-    def get_drive_guide(self, lane_id):
-        def get_intersection_parms(pr_dir, nr_dir):
-            #central_point, radians_headings_value_offset, radians_start_idx, radians_end_idx
-            parms = (
-                    ((), (), ('topleft', 3, 1, 0), ('topright', 2, 0, 1)),
-                    ((), (), ('topright', 0, 0, 1), ('topleft', 1, 1, 0)),
-                    (('topright', 1, 0, 1), ('topleft', 2, 1, 0), (), ()),
-                    (('topleft', 0, 1, 0), ('topright', 3, 0, 1), (), ())
-                )[pr_dir][nr_dir]
-            return parms
-
-        def get_plot_point(hk, radius, theta):
-            x = hk[0] + round((radius * np.cos(theta)))
-            y = hk[1] + round((radius * np.sin(theta)))
-            return x, y
-
-        def get_arc_points(center_point, radius, intersection_parms):
-            pi = math.pi
-            points = []
-            offset = (pi / 2) * intersection_parms[1]
-            radian_range = (0, pi / 2)
-            radian_start = radian_range[intersection_parms[2]] + offset
-            radian_end = radian_range[intersection_parms[3]] + offset
-            thetas = np.linspace(radian_start, radian_end, 18)
-            for t in thetas:
-                points.append((get_plot_point(center_point, radius, t)))
-            return points
-
-        ## get_drive_guide()
-        lane = self.lanes[lane_id]
-
-        # prev_road parms
-        pr_dir = self.road_prev.direction
-        start_point = lane.gnav('midtop')
-
-        # next rect.py parms
-        nr_dir = self.direction
-
-        # get center end
-        intersection_parms = get_intersection_parms(pr_dir, nr_dir)
-        center_point = self.road_prev.gnav(intersection_parms[0])
-
-        # radius
-        width_axis_idx = self.road_prev.axis_idx_width
-        hk_width_axis_val = center_point[width_axis_idx]
-        p_start_width_axis_val = start_point[width_axis_idx]
-        radius = abs(hk_width_axis_val - p_start_width_axis_val)
-
-        # path points
-        return get_arc_points(center_point, radius, intersection_parms)
 
     def draw(self):
         def draw_border(direction, border_map):

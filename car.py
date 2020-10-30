@@ -2,6 +2,7 @@ import obj as obj_lib
 import math
 import numpy as np
 import road_artifact
+import drive as drive_lib
 import utilities as u
 
 class ObjCar(obj_lib.ObjImageMove):
@@ -59,7 +60,6 @@ class ObjCar(obj_lib.ObjImageMove):
         location['road'] = road
         location['lane'] = road.get_lane(self)
         return location
-
 
 class Sensor(obj_lib.Obj):
     """
@@ -391,42 +391,26 @@ class ClassiferSimulatorMoveVehicle(ClassifierSimulatorMove):
         else:
             # select adjoining lane
             data['type'] = 'multiple_lane'
-            current_lane_id = status['location']['lane'].lane_id
-            if current_lane_id - 1 >= 0:
-                new_lane_id = current_lane_id - 1
-            else:
-                new_lane_id = current_lane_id + 1
-            new_lane = road.lanes[new_lane_id]
-
-            # set end_point
-            end_point = [0, 0]
-            end_point[new_lane.axis_idx_width] = new_lane.gnav('cw')
-            end_point[new_lane.axis_idx_length] = artifact.gnav('bottom')
-            data['end_point'] = end_point
-
             car.set_collision_buffer_parms('top-front')
+
+            lane_id_current = status['location']['lane'].lane_id
+            if lane_id_current - 1 >= 0:
+                lane_id_new = lane_id_current - 1
+            else:
+                lane_id_new = lane_id_current + 1
+
+            # create drive guide
+            data['drive'] = drive_lib.DriveArcChangeLane(self.pygame, self.screen, car, road, lane_id_current, lane_id_new)
         return data
 
     def process_function(self, data):
         def change_lane(data):
             car = data['status']['car']
-            road = data['status']['location']['road']
+            drive = data['drive']
 
-            car_location_pos = 'center'
-            car_location = car.gnav(car_location_pos)
-            end_point = data['end_point']
-
-            # create and draw drive guide
-            drive_guide = u.get_drive_guide(road, car_location, end_point)
-            road.draw_drive_guide(car, car_location_pos, drive_guide)
-
-            # draw end point
-            self.pygame.draw.circle(road.screen, road.COLOR_RED, end_point, 2)
-
-            if road.dir_val_exceeds(end_point, car_location):
-                # continue lane change
-                heading = u.heading(car_location, end_point)
-                return self.send_instruction(car, heading, car.speed_prev, f'Changing lane to avoid slow moving vehicle')
+            target_heading = drive.get_heading(car)
+            if target_heading is not None:
+              return self.send_instruction(car, target_heading, car.speed_prev, f'Changing lane to avoid slow moving vehicle')
             else:
                 return self.status_set_inactive(data)
 
