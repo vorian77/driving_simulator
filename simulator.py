@@ -4,6 +4,7 @@ import map_defs as md
 import map as map_obj
 import administrators as vms_lib
 import car as car_obj
+import test as test_obj
 
 def main():
     # Init pygame
@@ -20,6 +21,9 @@ def main():
     screen_height = 600
     screen = pygame.display.set_mode((screen_width, screen_height))
     pygame.display.set_caption("Driving Simulator")
+
+    # test temp
+    test = test_obj.test(pygame, screen)
 
     # load data for maps
     maps = md.load()
@@ -59,7 +63,7 @@ def main():
                 break
             car.draw()
 
-            #test.update()
+            #test.draw()
 
             pygame.display.flip()
 
